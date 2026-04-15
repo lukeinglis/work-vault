@@ -1,0 +1,9 @@
+{
+  "contextFiles": ["CLAUDE.md"],
+  "ignorePatterns": [
+    ".obsidian/**",
+    ".trash/**",
+    "99-Archive/**",
+    "04-Inbox/**"
+  ]
+}
