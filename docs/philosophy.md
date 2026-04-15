@@ -4,7 +4,9 @@ The thinking behind the vault's structure and conventions.
 
 ## The Core Problem
 
-PM knowledge is scattered. Strategy lives in Google Docs. Decisions happen in Slack threads that disappear. Meeting notes sit in whatever app your calendar uses. Jira tracks execution but not thinking. Your actual reasoning -- why you chose X over Y, what the customer said, what you're worried about -- lives in your head.
+Work knowledge is scattered. Strategy lives in Google Docs. Decisions happen in Slack threads that disappear. Meeting notes sit in whatever app your calendar uses. Jira tracks execution but not thinking. Your actual reasoning -- why you chose X over Y, what the stakeholder said, what you're worried about -- lives in your head.
+
+This isn't just a PM problem. Engineers, project managers, TPMs, team leads -- anyone who juggles multiple workstreams, sits in meetings, and makes decisions that others will need to understand later -- has the same fragmentation.
 
 This vault consolidates all of it into one searchable, linked, AI-assisted system.
 

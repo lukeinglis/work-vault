@@ -1,8 +1,10 @@
 # Work Vault
 
-Your PM knowledge is scattered across Slack threads, email chains, Google Docs, Jira tickets, and your head. When someone asks "why did we decide that?" or "what did we agree to in that meeting?", the answer is buried somewhere -- or lost entirely.
+Your work knowledge is scattered across Slack threads, email chains, Google Docs, Jira tickets, and your head. When someone asks "why did we decide that?" or "what did we agree to in that meeting?", the answer is buried somewhere -- or lost entirely.
 
-This vault puts everything in one place. Strategy, research, decisions, meeting notes, and roadmap thinking all live here as plain markdown files, powered by [Obsidian](https://obsidian.md/) for linking and visualization and [Claude Code](https://claude.ai/code) for automation and AI assistance.
+This vault puts everything in one place. Strategy, research, decisions, meeting notes, and project thinking all live here as plain markdown files, powered by [Obsidian](https://obsidian.md/) for linking and visualization and [Claude Code](https://claude.ai/code) for automation and AI assistance.
+
+Built by a Product Manager, but designed for anyone who juggles meetings, decisions, and initiatives -- PMs, project managers, engineering leads, TPMs, chiefs of staff, or anyone who needs a system to stay on top of complex work.
 
 <!-- TODO: Add screenshots of Home dashboard, filled meeting note, and Kanban board -->
 

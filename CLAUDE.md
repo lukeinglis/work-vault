@@ -7,7 +7,7 @@
 
 ## What This Vault Is
 
-A Product Management vault -- both thinking space and source of truth. Only tickets live in your project tracker; everything else (strategy, research, decisions, meeting notes, roadmap thinking) is owned here and authoritative.
+A work vault -- both thinking space and source of truth. Only tickets live in your project tracker; everything else (strategy, research, decisions, meeting notes, project thinking) is owned here and authoritative.
 
 Customize the `01-Components/` folder to match your product areas. Each component is a permanent domain; initiatives are time-bound projects within each component.
 
