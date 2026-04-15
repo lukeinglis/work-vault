@@ -1,6 +1,10 @@
 # Work Vault
 
-An AI-powered Product Management vault built on [Obsidian](https://obsidian.md/) and [Claude Code](https://claude.ai/code). Your thinking space and source of truth -- strategy, research, decisions, meeting notes, and roadmap thinking all live here, not scattered across tools.
+Your PM knowledge is scattered across Slack threads, email chains, Google Docs, Jira tickets, and your head. When someone asks "why did we decide that?" or "what did we agree to in that meeting?", the answer is buried somewhere -- or lost entirely.
+
+This vault puts everything in one place. Strategy, research, decisions, meeting notes, and roadmap thinking all live here as plain markdown files, powered by [Obsidian](https://obsidian.md/) for linking and visualization and [Claude Code](https://claude.ai/code) for automation and AI assistance.
+
+<!-- TODO: Add screenshots of Home dashboard, filled meeting note, and Kanban board -->
 
 ## What You Get
 
@@ -17,6 +21,8 @@ An AI-powered Product Management vault built on [Obsidian](https://obsidian.md/)
 **Templates** for every note type: meetings, decisions, specs, research, one-pagers, weekly scratch pads, initiative overviews, and more.
 
 **A shared task system** (`Todo.md`) where you and Claude Code collaborate on tasks with clear ownership and handoff rules.
+
+See [docs/examples/](docs/examples/) for what these look like filled in.
 
 ## Prerequisites
 
@@ -83,6 +89,32 @@ Then:
 - "Log a decision that we chose Postgres over DynamoDB because we need complex queries"
 - `/prep-day` (if calendar MCP is configured)
 
+## Getting Started: Week by Week
+
+Don't try to set up everything at once. Ramp gradually:
+
+**Week 1: Foundation**
+- Set up your components in `01-Components/`
+- Use `Todo.md` as your task list -- ask Claude Code to add and manage tasks
+- Create meeting notes from `Templates/meeting.md` (manually or ask Claude Code)
+- Capture stray thoughts to `04-Inbox/` and triage them with "process my inbox"
+
+**Week 2: Daily rhythm**
+- Set up the Google Workspace MCP server ([docs/mcp-setup.md](docs/mcp-setup.md))
+- Start using `/prep-day` each morning and `/close-day` each evening
+- Use `/decision` whenever a decision surfaces -- build the habit
+
+**Week 3: Full integration**
+- Set up the Slack MCP server and create your command channel
+- Start using `/slack-listener` for mobile capture throughout the day
+- Set up Jira MCP and try `/jira-vault-sync`
+- Explore `/research` for competitive landscape briefs
+
+**Ongoing:**
+- Friday weekly cleanup becomes automatic (part of `/close-day`)
+- Decision records accumulate -- start referencing them ("why did we choose X?")
+- Weekly summaries build a searchable history of your work
+
 ## Vault Structure
 
 ```
@@ -119,7 +151,7 @@ work-vault/
   
   Templates/               -- Templates for every note type
   scripts/                 -- Automation scripts
-  docs/                    -- Setup guides
+  docs/                    -- Setup guides and examples
   
   .claude/
     commands/              -- Slash command definitions
@@ -149,7 +181,7 @@ The vault uses these community plugins (installed automatically when you open in
 | **Dataview** | Powers the Home dashboard and dynamic queries |
 | **Templater** | Template engine for creating notes |
 | **Periodic Notes** | Auto-creates weekly notes |
-| **QuickAdd** | Quick capture to inbox, todo, or scratch pad |
+| **QuickAdd** | Quick capture to inbox, todo, or scratch pad ([see shortcuts](docs/quickadd-shortcuts.md)) |
 | **Kanban** | Visual initiative board |
 | **Tasks** | Task rendering and queries |
 | **Excalidraw** | Diagrams and sketches |
@@ -175,6 +207,15 @@ Edit `.claude/rules/todo-management.md` to change ownership rules, table format,
 ### Adding slash commands
 Create a new `.md` file in `.claude/commands/`. The filename becomes the command name. Write the instructions for what Claude Code should do.
 
+## Docs
+
+| Doc | What's in it |
+|-----|-------------|
+| [Philosophy](docs/philosophy.md) | Why the vault is structured this way -- components vs. initiatives, the inbox pattern, decision logging, and the shared task system |
+| [MCP Setup](docs/mcp-setup.md) | Step-by-step setup for Jira, Slack, Google Workspace, and Browser MCP servers |
+| [QuickAdd Shortcuts](docs/quickadd-shortcuts.md) | The three pre-configured Obsidian capture shortcuts and how to customize them |
+| [Examples](docs/examples/) | Filled-in examples of a meeting note, decision record, weekly scratch pad, and Todo.md |
+
 ## FAQ
 
 **Do I need all the MCP servers?**
@@ -188,6 +229,9 @@ Each person clones the repo, customizes their components, and sets up their own 
 
 **Where do credentials go?**
 Never in the repo. MCP credentials go in `~/.mcp.json` (global, gitignored by default). The vault's `.mcp.json` only has credential-free configs like Browser MCP.
+
+**Why not just use Notion / Confluence / [other tool]?**
+See [docs/philosophy.md](docs/philosophy.md) -- the short answer is: local-first, plain markdown, no lock-in, and AI-native workflows that those tools can't match.
 
 ## License
 
