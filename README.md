@@ -20,11 +20,14 @@ An AI-powered Product Management vault built on [Obsidian](https://obsidian.md/)
 
 ## Prerequisites
 
+**Core:**
 - [Obsidian](https://obsidian.md/) (free)
 - [Claude Code](https://claude.ai/code) (requires Anthropic API access)
-- Python 3.10+ (for email scripts)
+
+**For MCP integrations (optional):**
 - Node.js 18+ (for MCP servers)
 - [uv](https://docs.astral.sh/uv/) (Python package runner, for Jira and Google MCP servers)
+- Python 3.10+ (only if using the fallback email scripts)
 
 ## Quick Start
 
@@ -132,9 +135,10 @@ work-vault/
 A typical day looks like:
 
 1. **Morning:** `/prep-day` -- creates meeting notes, posts schedule to Slack
-2. **During the day:** Send commands from Slack (`todo: follow up on X`, `decision: chose Y because Z`)
-3. **Between meetings:** Work on tasks from Todo.md, draft specs, log decisions
-4. **End of day:** `/close-day` -- pulls emails, merges notes, summarizes, preps tomorrow
+2. **Start listening:** `/slack-listener` -- polls your Slack command channel every 5 minutes
+3. **During the day:** Send commands from Slack (`todo: follow up on X`, `decision: chose Y because Z`)
+4. **Between meetings:** Work on tasks from Todo.md, draft specs, log decisions
+5. **End of day:** `/close-day` -- pulls emails, merges notes, summarizes, preps tomorrow
 
 ## Obsidian Plugins
 
@@ -187,4 +191,4 @@ Never in the repo. MCP credentials go in `~/.mcp.json` (global, gitignored by de
 
 ## License
 
-MIT
+[MIT](LICENSE)

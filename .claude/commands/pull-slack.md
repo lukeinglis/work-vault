@@ -36,5 +36,5 @@ COMMAND_CHANNEL_ID = "YOUR_CHANNEL_ID"
 4. **Report results** -- count of messages processed by type
 
 ## Continuous Polling
-To poll automatically, use: `/loop 5m /pull-slack`
+To poll automatically, use Claude Code's built-in `/loop` skill: `/loop 5m /pull-slack`
 This checks the channel every 5 minutes. Start after `/prep-day` and stop at `/close-day`.
