@@ -3,6 +3,7 @@
 
 import argparse
 import csv
+import io
 import json
 import re
 import sys
@@ -27,7 +28,7 @@ def read_csv(csv_path):
             f"Error: {csv_path} not found.\n"
             "Download the 'Emails' tab from your Google Sheet as CSV\n"
             "and save it as emails.csv in this directory.\n"
-            "See Automation.md for instructions.",
+            "See README.md for instructions.",
             file=sys.stderr,
         )
         sys.exit(1)

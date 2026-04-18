@@ -1,7 +1,6 @@
 # Email pull script
 scripts/email-pull/sheet_url.txt
 scripts/email-pull/.imported_ids.json
-scripts/email-pull/emails.csv
 
 # Obsidian
 .obsidian/workspace.json
@@ -15,7 +14,3 @@ scripts/email-pull/emails.csv
 # Python
 scripts/email-pull/__pycache__/
 scripts/email-pull/.venv/
-
-# Claude Code local settings (contains personal permissions)
-.claude/settings.local.json
-.claude/scheduled_tasks.lock

@@ -1,6 +1,6 @@
 ---
 title: "{{title}}"
-initiative: ""  # e.g. payments, onboarding, search
+initiative: ""  # inference-time-scaling | fine-tuning | ai-innovation
 status: draft   # draft | circulating | final
 audience: ""    # engineering | leadership | cross-functional
 tags: [one-pager]

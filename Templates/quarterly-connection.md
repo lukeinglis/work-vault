@@ -3,7 +3,7 @@ title: "Quarterly Connection - {{quarter}}"
 date: {{date}}
 type: quarterly-connection
 quarter: ""  # e.g. "Q1 FY27"
-manager: ""
+manager: "Tushar"
 tags: [meeting, quarterly-connection]
 ---
 
@@ -20,7 +20,7 @@ Claude Code instructions:
 # Quarterly Connection - {{quarter}}
 
 **Date:** {{date}}
-**Manager:** 
+**Manager:** Tushar
 
 ## Accomplishments
 

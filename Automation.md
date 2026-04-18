@@ -11,49 +11,58 @@ Reference for all automation set up in this vault.
 
 Pulls emails into `04-Inbox/` as markdown files for triage.
 
-### How it works (MCP -- recommended)
+### How it works
 
-1. Label emails in Gmail with **z - Obsidian** (or your capture label)
-2. Run `/pull-emails` in Claude Code
-3. Claude Code reads Gmail via the Google Workspace MCP server, creates markdown files, routes AI meeting notes to the right meeting files, and removes the label
-4. Run "process my inbox" to triage new items into the right vault folders
+1. **Apps Script** (runs hourly in Google) exports labeled emails to a Google Sheet and saves attachments to Google Drive
+2. **Local script** downloads the Sheet as CSV and converts each row to a markdown file in `04-Inbox/`
+3. **Claude Code** triages inbox items into the right vault folders ("process my inbox")
 
-Requires the Google Workspace MCP server. See `docs/mcp-setup.md`.
+### Day-to-day usage
 
-### Fallback: Script-Based Pull (no MCP required)
+Label any email in Gmail with **z - Obsidian**, then run:
 
-If you can't use the MCP server (e.g., enterprise auth restrictions), there's an Apps Script + Python pipeline in `scripts/email-pull/`:
-
-1. **Apps Script** (`Code.gs`) runs hourly in Google, exports labeled emails to a Google Sheet, and saves attachments to Drive
-2. **Python script** (`pull_emails.py`) downloads the Sheet as CSV and converts each row to a markdown file in `04-Inbox/`
-
-**Setup:**
-1. Create a Google Sheet (e.g., "Obsidian Email Export")
-2. Add Apps Script (`scripts/email-pull/Code.gs`) via Extensions > Apps Script
-3. Authorize Gmail + Drive access on first run
-4. Set hourly trigger: Apps Script > Triggers > `exportEmails` every hour
-5. Publish Sheet "Emails" tab as CSV
-6. Save the Sheet URL in `scripts/email-pull/sheet_url.txt`
-
-**Usage:**
 ```bash
-python3 scripts/email-pull/pull_emails.py          # import new emails
-python3 scripts/email-pull/pull_emails.py --dry-run # preview only
+./scripts/email-pull/pull-emails
 ```
 
-**Troubleshooting:**
-- **"No new emails"** -- the Apps Script trigger may not have run yet. Run `exportEmails` manually in Apps Script.
-- **Want to re-import** -- delete `scripts/email-pull/.imported_ids.json` and run again.
+That's it. The script downloads the latest Sheet export, imports new emails, and skips ones already imported.
 
-## Jira Sync (`/jira-vault-sync`)
+Options:
+- `--dry-run` -- preview what would be imported
+- `-v` -- verbose output
 
-Syncs Jira ticket state into initiative `_overview.md` files. Invoke with `/jira-vault-sync` in Claude Code. Requires Jira MCP server to be configured.
+### Setup (already done, for reference)
 
-## Slack Integration
+1. Created Google Sheet: **Obsidian Email Export**
+2. Added Apps Script (`scripts/email-pull/Code.gs`) via Extensions > Apps Script
+3. Authorized Gmail + Drive access on first run
+4. Set hourly trigger: Apps Script > Triggers > `exportEmails` every hour
+5. Published Sheet "Emails" tab as CSV
+6. Sheet ID and GID are embedded in `scripts/email-pull/pull-emails`
 
-Two-way communication with a dedicated Slack channel:
-- `/prep-day` posts the day's schedule
-- `/pull-slack` reads commands from the channel
-- `/close-day` pulls meeting threads back into the vault
+### Key files
 
-See `docs/mcp-setup.md` for Slack MCP server setup.
+| File | Purpose |
+|------|---------|
+| `scripts/email-pull/pull-emails` | One-command wrapper (download + import) |
+| `scripts/email-pull/pull_emails.py` | Python script that converts CSV rows to markdown |
+| `scripts/email-pull/Code.gs` | Apps Script source (copy of what's deployed in Google) |
+| `scripts/email-pull/emails.csv` | Latest downloaded Sheet export (gitignored) |
+| `scripts/email-pull/.imported_ids.json` | Tracks which emails have been imported (gitignored) |
+
+### Attachments
+
+Email attachments are saved to a Google Drive folder called **Obsidian Email Attachments**, organized by date and subject. Markdown files link to them as clickable Drive URLs.
+
+### Troubleshooting
+
+- **"No new emails"** -- the Apps Script trigger may not have run yet. Go to the Sheet, open Apps Script, and run `exportEmails` manually.
+- **Script hangs on download** -- make sure you're logged into Google in your default browser. The script opens the Sheet export URL which requires authentication.
+- **Want to re-import everything** -- delete `scripts/email-pull/.imported_ids.json` and run again.
+- **Want to clear the Sheet** -- run `clearSheet()` in Apps Script.
+
+## Jira Sync (`/jira-sync`)
+
+*Follow-up: may already be implemented in a prior session. See CLAUDE.md for the full spec.*
+
+Syncs RHAISTRAT/RHAIRFE ticket state into initiative `_overview.md` files. Invoke with `/jira-sync` in Claude Code.

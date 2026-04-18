@@ -7,7 +7,7 @@
       "command": false,
       "format": {
         "enabled": true,
-        "format": "---\ntitle: \"{{VALUE}}\"\ncaptured: {{DATE:YYYY-MM-DD}}\nsource: manual\nprocessed: false\nsuggested_destination: \"\"\ntags: [inbox]\n---\n\n# {{VALUE}}\n\n"
+        "format": "- {{VALUE}} (captured {{DATE:YYYY-MM-DD HH:mm}})"
       },
       "captureTo": "04-Inbox/intake/{{DATE:YYYY-MM-DD}}-quick-capture.md",
       "createFileIfItDoesntExist": {
@@ -16,7 +16,11 @@
       },
       "task": false,
       "prepend": false,
-      "append": true
+      "appendLink": false,
+      "insertAfter": {
+        "enabled": false
+      },
+      "fileExistsMode": "append"
     },
     {
       "id": "add-action-item",
@@ -25,19 +29,18 @@
       "command": false,
       "format": {
         "enabled": true,
-        "format": "| you | {{VALUE}} |  |  |\n"
+        "format": "| you   | {{VALUE}} |  | #inference-scaling | "
       },
       "captureTo": "Todo.md",
-      "createFileIfItDoesntExist": {
-        "enabled": false
-      },
       "task": false,
       "prepend": false,
-      "append": true,
+      "appendLink": false,
       "insertAfter": {
         "enabled": true,
-        "after": "## Next Up"
-      }
+        "after": "## Next Up",
+        "insertAtEnd": true
+      },
+      "fileExistsMode": "append"
     },
     {
       "id": "quick-scratch",
@@ -46,18 +49,64 @@
       "command": false,
       "format": {
         "enabled": true,
-        "format": "- {{VALUE}}\n"
+        "format": "- {{VALUE}}"
       },
       "captureTo": "02-Weekly/{{DATE:YYYY-[W]ww}}.md",
-      "createFileIfItDoesntExist": {
-        "enabled": false
-      },
       "task": false,
       "prepend": false,
-      "append": true
+      "appendLink": false,
+      "insertAfter": {
+        "enabled": true,
+        "after": "### {{DATE:dddd}}",
+        "insertAtEnd": false
+      },
+      "fileExistsMode": "append"
     }
   ],
-  "macros": [],
   "inputPrompt": "single-line",
-  "templateFolderPath": "Templates"
+  "persistInputPromptDrafts": true,
+  "useSelectionAsCaptureValue": true,
+  "devMode": false,
+  "templateFolderPath": "Templates",
+  "announceUpdates": "major",
+  "version": "2.12.0",
+  "globalVariables": {},
+  "onePageInputEnabled": false,
+  "disableOnlineFeatures": true,
+  "enableRibbonIcon": true,
+  "showCaptureNotification": true,
+  "showInputCancellationNotification": false,
+  "enableTemplatePropertyTypes": false,
+  "dateAliases": {
+    "t": "today",
+    "tm": "tomorrow",
+    "yd": "yesterday",
+    "nw": "next week",
+    "nm": "next month",
+    "ny": "next year",
+    "lw": "last week",
+    "lm": "last month",
+    "ly": "last year"
+  },
+  "ai": {
+    "defaultModel": "Ask me",
+    "defaultSystemPrompt": "",
+    "promptTemplatesFolderPath": "",
+    "showAssistant": false,
+    "providers": [],
+    "autoSyncModels": false
+  },
+  "migrations": {
+    "migrateToMacroIDFromEmbeddedMacro": true,
+    "useQuickAddTemplateFolder": true,
+    "incrementFileNameSettingMoveToDefaultBehavior": true,
+    "mutualExclusionInsertAfterAndWriteToBottomOfFile": true,
+    "setVersionAfterUpdateModalRelease": true,
+    "addDefaultAIProviders": true,
+    "removeMacroIndirection": true,
+    "migrateFileOpeningSettings": true,
+    "backfillFileOpeningDefaults": true,
+    "setProviderModelDiscoveryMode": true,
+    "migrateProviderApiKeysToSecretStorage": true
+  }
 }

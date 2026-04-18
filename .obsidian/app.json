@@ -1,1 +1,7 @@
-{}
+{
+  "userIgnoreFilters": [
+    "07-Usage/sessions/",
+    "07-Usage/hook-debug.log",
+    "07-Usage/sync.log"
+  ]
+}

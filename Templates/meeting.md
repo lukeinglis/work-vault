@@ -1,17 +1,17 @@
 ---
 title: "{{title}}"
 date: {{date}}
-type: ""  # recurring series name (e.g. "team-standup") or "one-off"
+type: ""  # recurring series name (e.g. "itshub-eng-pm-sync") or "one-off"
 attendees: []
-initiatives: []  # e.g. ["[[01-Components/my-component/_overview]]"]
-transcript: ""   # e.g. "[[_transcripts/2026-04-08-standup-transcript]]"
-recording: ""    # Google Drive or other link
+initiatives: []  # e.g. ["[[01-Components/inference-time-scaling/_overview]]"]
+transcript: ""   # e.g. "[[_transcripts/2026-04-08-component-sync-transcript]]"
+recording: ""    # Google Drive link
 tags: [meeting]
 ---
 
 <!--
 Claude Code instructions:
-- Single file per meeting. All sources (my notes, AI summary, transcript, 
+- Single file per meeting. All sources (my notes, Gemini summary, transcript, 
   recording) consolidated here.
 - If `transcript` in frontmatter points to a file in _transcripts/, read it 
   and use it as the source of truth for ## Notes, ## Decisions, and ## Action Items.
@@ -47,8 +47,8 @@ _Explicit decisions made during the meeting. Log significant ones as decision fi
 
 ## Action Items
 
-- [ ] _task_ -- @owner -- due date
-- [ ] _task_ -- @owner -- due date
+- [ ] _task_ — @owner — 📅 due
+- [ ] _task_ — @owner — 📅 due
 
 ## Follow-ups
 
@@ -56,11 +56,12 @@ _Things to revisit next time or in another forum._
 
 - 
 
-## AI Summary
+## Gemini Summary
 
-_Auto-generated summary from meeting AI (e.g., Google Gemini, Otter). Populated by /close-day or /pull-emails. Leave empty if no AI summary available._
+_Auto-generated summary from Google Meet Gemini. Populated by /close-day or /pull-emails when Gemini notes arrive. Leave empty if no Gemini summary available._
 
 ## Scratch Pad
 
 _Free-form notes, brain dumps, and raw context to process later._
+
 

@@ -1,0 +1,44 @@
+#!/bin/bash
+# One-command email pull: downloads CSV from Google Sheet, then imports to vault.
+#
+# Usage: ./pull-emails [--dry-run] [-v]
+
+DIR="$(cd "$(dirname "$0")" && pwd)"
+VAULT_ROOT="$DIR/../.."
+DOWNLOADS="$HOME/Downloads"
+CSV_NAME="Obsidian Email Export - Emails.csv"
+CSV_DEST="$DIR/emails.csv"
+
+# Google Sheet export URL (authenticated via browser session)
+SHEET_ID="18K5rhURxwAn1BD07zTJEOb3DJkKYxm1hLAxnNoAdszc"
+GID="1089985977"
+EXPORT_URL="https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}"
+
+# Step 1: Remove old download if it exists
+rm -f "$DOWNLOADS/$CSV_NAME"
+
+# Step 2: Open the export URL in browser (auto-downloads because you're logged in)
+echo "Opening Sheet export in browser..."
+open "$EXPORT_URL"
+
+# Step 3: Wait for download to complete
+echo "Waiting for download..."
+for i in $(seq 1 30); do
+    if [ -f "$DOWNLOADS/$CSV_NAME" ]; then
+        break
+    fi
+    sleep 1
+done
+
+if [ ! -f "$DOWNLOADS/$CSV_NAME" ]; then
+    echo "Error: Download didn't complete within 30 seconds."
+    echo "Try downloading manually from the Sheet and saving as: $CSV_DEST"
+    exit 1
+fi
+
+# Step 4: Move to script directory
+mv "$DOWNLOADS/$CSV_NAME" "$CSV_DEST"
+echo "CSV updated."
+
+# Step 5: Run the import
+exec python3 "$DIR/pull_emails.py" "$@"

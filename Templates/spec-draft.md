@@ -1,6 +1,6 @@
 ---
 title: "{{title}}"
-initiative: ""  # e.g. payments, onboarding, search
+initiative: ""  # inference-time-scaling | fine-tuning | ai-innovation
 status: draft   # draft | ready-for-jira | shipped
 jira_ticket: "" # fill in after shipping
 tags: [spec-draft]
@@ -24,7 +24,7 @@ _What problem are we solving? For whom? How do we know it's real?_
 
 ## Why Now
 
-_Context on timing -- what's changed, what's at stake if we wait._
+_Context on timing — what's changed, what's at stake if we wait._
 
 ## Goals
 

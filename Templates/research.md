@@ -1,6 +1,6 @@
 ---
 title: "{{title}}"
-initiative: ""  # e.g. payments, onboarding, search
+initiative: ""  # inference-time-scaling | fine-tuning | ai-innovation
 type: ""        # user-research | competitive | technical | market | data
 tags: [research]
 created: {{date}}

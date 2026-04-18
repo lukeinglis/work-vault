@@ -1,7 +1,7 @@
 /**
  * Gmail-to-Obsidian Email Export
  *
- * Reads emails labeled with your capture label, exports them to this Sheet,
+ * Reads emails labeled "z - Obsidian", exports them to this Sheet,
  * saves attachments to Google Drive, and removes the label.
  *
  * Setup:
@@ -10,7 +10,7 @@
  * 3. Optionally add a time-based trigger for automatic export
  */
 
-var LABEL_NAME = "z - Obsidian";           // Change to your Gmail label
+var LABEL_NAME = "z - Obsidian";
 var DRIVE_FOLDER_NAME = "Obsidian Email Attachments";
 var SHEET_NAME = "Emails"; // Tab name in the spreadsheet
 
@@ -147,6 +147,8 @@ function extractLinks(html) {
     var url = match[1];
     // Skip mailto, javascript, and anchor-only links
     if (url.match(/^(mailto:|javascript:|#)/i)) continue;
+    // Skip Google tracking/unsubscribe URLs
+    if (url.match(/^https?:\/\/(www\.)?(google\.com\/url|notifications\.google\.com)/i)) continue;
     if (!seen[url]) {
       seen[url] = true;
       urls.push(url);
@@ -187,7 +189,7 @@ function saveAttachments(msg, parentFolder, dateStr, subject) {
   if (!attachments || attachments.length === 0) return "";
 
   // Create a subfolder: YYYY-MM-DD-subject-slug
-  var datePrefix = dateStr.substring(0, 10);
+  var datePrefix = dateStr.substring(0, 10); // "2026-04-07"
   var slug = subject.toLowerCase()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/[\s]+/g, "-")

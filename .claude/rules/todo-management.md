@@ -1,20 +1,24 @@
 ---
-paths: ["Todo.md"]
+paths: ["Todo.md", "Todo Board.md"]
 ---
 
 # Task Management -- Todo.md
 
 **Most important operational rule.** Todo.md is the shared workspace between me and you. Every task flows through it.
 
-**Structure:** Four table sections: `This Week` (with Due column), `Next Up`, `Someday`, `Done (Last 7 Days)` (with Completed column). Tag with your initiative tags.
+**Structure:** Five table sections: `This Week` (with Due column), `Next Up`, `Ongoing` (persistent efforts without a due date), `Someday / Backlog`, `Done (Last 7 Days)` (with Completed column). Tag with initiative: `#inference-scaling`, `#fine-tuning`, `#ai-innovation`.
 
 **Ownership values** (Owner column):
 - `you` -- I own it
 - `cc` -- You own it end-to-end
 - `both` -- Collaborative
 
-**This Week / Next Up format:** `| owner | task description | [[source-link]] | #tag | due-date |`
+**Task IDs:** Every active task gets a stable ID (`T-001`, `T-002`...). IDs are permanent -- when a task moves to Done, its ID is retired, not reused. New tasks get the next available number. The user can say "work on T-003" to target a specific task.
+
+**This Week / Next Up format:** `| ID | owner | task description | [[source-link]] | #tag | due-date |`
 **Done format:** `| owner | task description | completed-date |`
+
+**Sync rule:** Todo.md and Todo Board.md must always mirror each other. Every add, move, or completion updates both files. Section mapping: This Week = Now, Next Up = Next, Someday / Backlog = Icebox, Ongoing = Ongoing, Done = Done.
 
 **Rules:**
 1. Every task links to its source (meeting note, inbox file, `_overview.md`). No orphan tasks.

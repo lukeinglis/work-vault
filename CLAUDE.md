@@ -1,7 +1,7 @@
 # Work Vault -- Claude Code Context
 
 ## Style & Voice (Applies to Everything)
-- Write in my voice: concise, bullet-heavy, no fluff, no hedging
+- Write in my voice: concise, bullet-heavy, no fluff, no hedging, no emdashes
 - Don't over-format. Headers and bold only where they add clarity
 - When uncertain about routing or structure, ask before creating files
 
@@ -10,6 +10,7 @@
 A work vault -- both thinking space and source of truth. Only tickets live in your project tracker; everything else (strategy, research, decisions, meeting notes, project thinking) is owned here and authoritative.
 
 Customize the `01-Components/` folder to match your product areas. Each component is a permanent domain; initiatives are time-bound projects within each component.
+
 
 ## Vault Structure
 

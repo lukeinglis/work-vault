@@ -1,7 +1,7 @@
 ---
 title: "{{title}}"
 date: {{date}}
-initiative: ""  # e.g. payments, onboarding, search
+initiative: ""  # inference-time-scaling | fine-tuning | ai-innovation
 status: accepted  # proposed | accepted | superseded
 deciders: []
 tags: [decision]

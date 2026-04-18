@@ -16,5 +16,7 @@
   },
   "yearly": {
     "enabled": false
-  }
+  },
+  "hasMigratedDailyNoteSettings": true,
+  "hasMigratedWeeklyNoteSettings": true
 }
