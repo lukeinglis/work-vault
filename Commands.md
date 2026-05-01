@@ -13,8 +13,8 @@ tags: [reference]
 | `/prep-day [date]`    | Fetches calendar events, creates meeting note shells, and populates the scratch pad for the target day (defaults to today).      |
 | `/close-day [date]`   | Pulls emails, merges Gemini notes, ports scratch pad notes to meeting files, summarizes the day, then preps tomorrow.            |
 | `/pull-emails`        | Pulls emails labeled "z - Obsidian" from Gmail into the vault inbox, then removes the label.                                     |
-| `/pull-slack`         | Dispatches commands from #obsidian-luke: todo, decision, note, meeting, search, jira. See [[scripts/slack-pull/Slack Channels]]. |
-| `/slack-listener`     | Starts polling #obsidian-luke every 5 minutes. Run after `/prep-day` to listen all day.                                          |
+| `/pull-slack`         | Dispatches commands from #{{SLACK_CHANNEL_NAME}}: todo, decision, note, meeting, search, jira. See [[scripts/slack-pull/Slack Channels]]. |
+| `/slack-listener`     | Starts polling #{{SLACK_CHANNEL_NAME}} every 5 minutes. Run after `/prep-day` to listen all day.                                          |
 | `/jira-vault-sync`    | Syncs initiative overviews with current Jira state and reports changes.                                                          |
 | `/sync-presentations` | Pulls presentations from the Google Drive folder into 06-Presentations/ as searchable markdown.                                  |
 

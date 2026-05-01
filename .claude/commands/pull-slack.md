@@ -1,8 +1,8 @@
-Pull and process messages from #obsidian-luke (C0ASX58TJ4T) via Slack MCP tools. Handles command dispatch and general channel pulls. Called directly or via `/slack-listener` (which runs `/loop 5m /pull-slack`).
+Pull and process messages from #{{SLACK_CHANNEL_NAME}} ({{SLACK_CHANNEL_ID}}) via Slack MCP tools. Handles command dispatch and general channel pulls. Called directly or via `/slack-listener` (which runs `/loop 5m /pull-slack`).
 
 ## Notifications
 
-All thread replies must @mention the user (`<@U08EC765D0X>`) so Slack sends a push notification. This ensures the user sees confirmations on their phone/desktop regardless of channel notification settings.
+All thread replies must @mention the user (`<@{{SLACK_USER_ID}}>`) so Slack sends a push notification. This ensures the user sees confirmations on their phone/desktop regardless of channel notification settings.
 
 ## Channel Reference
 
@@ -10,15 +10,16 @@ See `scripts/slack-pull/Slack Channels.md` for the full list of tracked channels
 
 ## Steps
 
-### Step 1: Read new messages from #obsidian-luke
+### Step 1: Read new messages from #{{SLACK_CHANNEL_NAME}}
 
-1. Use `mcp__slack__get_channel_history` on channel C0ASX58TJ4T
+1. Use `mcp__slack__get_channel_history` on channel {{SLACK_CHANNEL_ID}}
 2. Filter to messages since the last check:
    - On first run of the day, process all messages after today's day header (the `-- YYYY-MM-DD --` message posted by `/prep-day`)
    - On subsequent runs (via `/loop`), process messages since the last processed timestamp
    - Track the last processed timestamp in memory during the session (no file needed -- session-scoped)
 3. Skip messages posted by this integration (avoid processing our own replies)
 4. Skip thread replies in the top-level message scan (threads are handled separately in step 3)
+5. State: "Found N new messages since last check (M already processed via checkmark, K to dispatch)."
 
 ### Step 2: Dispatch commands
 
@@ -28,12 +29,12 @@ For each new top-level message, match the prefix and route:
 - Parse the text after the prefix
 - Add a new row to the appropriate section of Todo.md (default: This Week, owner: (you))
 - If a due date is mentioned (e.g., "by Thursday", "due 4/18"), parse it and set the date column
-- Reply in thread: "<@U08EC765D0X> Added to Todo.md: <task text>"
+- Reply in thread: "<@{{SLACK_USER_ID}}> Added to Todo.md: <task text>"
 
 **`decision:` -- Log a decision**
 - Parse the text after the prefix
 - Run the `/decision` flow with the text as input
-- Reply in thread: "<@U08EC765D0X> Decision logged: <file path>"
+- Reply in thread: "<@{{SLACK_USER_ID}}> Decision logged: <file path>"
 
 **`note:` -- Capture to inbox**
 - Parse the text after the prefix
@@ -43,10 +44,10 @@ For each new top-level message, match the prefix and route:
   title: "<first ~60 chars>"
   created: YYYY-MM-DD
   tags: [slack, inbox]
-  source: obsidian-luke
+  source: {{SLACK_CHANNEL_NAME}}
   ---
   ```
-- Reply in thread: "<@U08EC765D0X> Captured to intake"
+- Reply in thread: "<@{{SLACK_USER_ID}}> Captured to intake"
 
 **`meeting:` -- Create an ad-hoc meeting note**
 - Parse the text after the prefix for meeting name and any context/notes
@@ -55,41 +56,43 @@ For each new top-level message, match the prefix and route:
 - Create a meeting note at `03-Meetings/<type>/YYYY-MM-DD-<slugified-name>.md` using the standard meeting note template
 - If context/notes were included after the meeting name, add them to the `## Notes` section
 - Add a `####` block to today's scratch pad in the weekly note (use current time as the time slot)
-- Post a meeting message to #obsidian-luke in the same format as prep-day meeting messages:
+- Post a meeting message to #{{SLACK_CHANNEL_NAME}} in the same format as prep-day meeting messages:
   ```
   [HH:MM] Meeting Name
   ---
   (any context provided)
   ```
 - This message becomes a thread anchor for notes, just like prep-day meetings
-- Reply in the original command thread: "<@U08EC765D0X> Meeting created: <file path> -- posted to channel for notes"
+- Reply in the original command thread: "<@{{SLACK_USER_ID}}> Meeting created: <file path> -- posted to channel for notes"
 
 **`search:` -- Search the vault**
 - Parse the query after the prefix
 - Search across vault files using Grep (content) and Glob (filenames)
 - Reply in thread with top results (max 5):
   - File path, matching line or title, relevance
-- If no results: "<@U08EC765D0X> No matches found for: <query>"
+- If no results: "<@{{SLACK_USER_ID}}> No matches found for: <query>"
 
 **`jira:` -- Look up a Jira ticket**
-- Parse the Jira key after the prefix (e.g., RHAIRFE-1234, RHAISTRAT-567)
+- Parse the Jira key after the prefix (e.g., PROJ-1234, STRAT-567)
 - Use `mcp__jira__jira_get_issue` to fetch the ticket
 - Reply in thread with: summary, status, assignee, priority, and link
 - Also supports natural language Jira queries (e.g., "find the latest RFE on inference-time scaling") -- use `mcp__jira__jira_search` with JQL to find matching tickets and reply with results
 
 **No prefix (natural language / plain text / forwarded messages)** -- Classify intent
 - Do NOT blindly route to intake. Read the message and classify the intent:
-  - If it asks to find, look up, pull, or check something in **Jira** (mentions RFE, ticket, RHAISTRAT, RHAIRFE, RHAIENG, epic, story, feature) -> treat as a `jira:` command. Use `mcp__jira__jira_search` with appropriate JQL and reply with results in thread.
+  - If it asks to find, look up, pull, or check something in **Jira** (mentions RFE, ticket, {{JIRA_PROJECT_STRAT}}, {{JIRA_PROJECT_RFE}}, {{JIRA_PROJECT_ENG}}, epic, story, feature) -> treat as a `jira:` command. Use `mcp__jira__jira_search` with appropriate JQL and reply with results in thread.
   - If it asks to **search** or find something in the vault, notes, meetings, or decisions -> treat as a `search:` command
   - If it reads like a **task or action item** (mentions "need to", "follow up", "remind me", "don't forget") -> treat as a `todo:` command
   - If it reads like a **decision** ("decided", "we agreed", "going with") -> treat as a `decision:` command
   - If it's a forwarded message or a general note with no clear action -> route to intake
-- Always reply in thread (with `<@U08EC765D0X>` mention) with what action was taken and the result
+- Always reply in thread (with `<@{{SLACK_USER_ID}}>` mention) with what action was taken and the result
 - When in doubt about intent, execute the most likely action rather than defaulting to intake
 
 ### Step 3: Read meeting threads
 
-For each meeting thread anchor in the channel (messages matching the `[HH:MM] Meeting Name` format posted by `/prep-day` or the `meeting:` command):
+Identify ALL meeting thread anchors for today (messages matching `[HH:MM]` format posted by `/prep-day` or the `meeting:` command). State: "Found N thread anchors to check." Process each one. Do not stop early.
+
+For each meeting thread anchor:
 
 1. Use `mcp__slack__get_thread` to read the full thread
 2. Identify new replies since the last check:
@@ -135,5 +138,5 @@ When a `search:` or `jira:` command (or natural language query) references a top
 
 If MCP tools fail with auth errors:
 - Tell the user their Slack token needs refreshing
-- Run: `python3 ~/slack-mcp/scripts/setup-slack-mcp.py --refresh-tokens`
+- Run: `python3 {{SLACK_TOKEN_REFRESH_CMD}} --refresh-tokens`
 - Stop processing

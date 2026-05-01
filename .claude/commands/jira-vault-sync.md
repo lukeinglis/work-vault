@@ -2,16 +2,16 @@ Sync the work vault's initiative overviews with current Jira state.
 
 ## Steps
 
-1. Run these JQL queries via the Jira MCP (`outputFormat: "json"`, `fields: "summary,status,issuetype,updated,assignee"`):
+1. Execute ALL FOUR JQL queries below via the Jira MCP (`outputFormat: "json"`, `fields: "summary,status,issuetype,updated,assignee"`). State results after: "Component 1: N results, Component 2: N results, My RFEs: N results, My Strategy: N results."
 
-   - **ITS:** `project = RHAISTRAT AND component = "Inference-Time Techniques" AND status not in (Closed) ORDER BY updated DESC`
-   - **Fine-Tuning:** `project = RHAISTRAT AND component in ("SDG", "Training Hub", "Fine Tuning") AND status not in (Closed) ORDER BY updated DESC`
-   - **My RFEs:** `project = RHAIRFE AND assignee = currentUser() AND status not in (Closed) ORDER BY updated DESC`
-   - **My RHAISTRAT:** `project = RHAISTRAT AND (reporter = currentUser() OR watcher = currentUser()) AND status not in (Closed) ORDER BY updated DESC`
+   - **Component 1:** `project = {{JIRA_PROJECT_STRAT}} AND component = "{{COMPONENT_1}}" AND status not in (Closed) ORDER BY updated DESC`
+   - **Component 2:** `project = {{JIRA_PROJECT_STRAT}} AND component in ("{{COMPONENT_2}}", "{{COMPONENT_3}}") AND status not in (Closed) ORDER BY updated DESC`
+   - **My RFEs:** `project = {{JIRA_PROJECT_RFE}} AND assignee = currentUser() AND status not in (Closed) ORDER BY updated DESC`
+   - **My Strategy:** `project = {{JIRA_PROJECT_STRAT}} AND (reporter = currentUser() OR watcher = currentUser()) AND status not in (Closed) ORDER BY updated DESC`
 
 2. Read the current overview files:
-   - `01-Components/inference-time-scaling/_overview.md`
-   - `01-Components/fine-tuning/_overview.md`
+   - `01-Components/{{COMPONENT_1_SLUG}}/_overview.md`
+   - `01-Components/{{COMPONENT_2_SLUG}}/_overview.md`
 
 3. Compare Jira results against the overviews and report:
    - **New tickets** not yet in the overview

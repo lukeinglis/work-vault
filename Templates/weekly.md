@@ -26,31 +26,41 @@ _Free-form. Dump thoughts here throughout the week._
 
 ### Monday
 
-- 
+#### HH:MM -- Meeting Name [type]
+
+-
 
 **Summary:**
 
 ### Tuesday
 
-- 
+#### HH:MM -- Meeting Name [type]
+
+-
 
 **Summary:**
 
 ### Wednesday
 
-- 
+#### HH:MM -- Meeting Name [type]
+
+-
 
 **Summary:**
 
 ### Thursday
 
-- 
+#### HH:MM -- Meeting Name [type]
+
+-
 
 **Summary:**
 
 ### Friday
 
-- 
+#### HH:MM -- Meeting Name [type]
+
+-
 
 **Summary:**
 

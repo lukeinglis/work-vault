@@ -2,12 +2,19 @@ Close out a day: pull emails, merge Gemini notes, port scratch pad notes to meet
 
 **Usage:** `/close-day` (defaults to today) or `/close-day 2026-04-08`
 
-## Steps (execute in this order)
+## Execution Rules
+
+- Execute every step in order. Do not skip, combine, or abbreviate steps.
+- Before processing a list, state its count: "Found N Gemini notes" / "N meetings to port" / "N threads to check."
+- After completing a step that produces outputs, confirm: "Step N complete: processed X, skipped Y."
+- If a step fails or partially completes, state what succeeded and what did not before moving on.
+
+## Steps
 
 ### Step 1: Pull emails
 
-- Run the `/pull-emails` flow to grab any new Gemini notes or emails that arrived today
-- Wait for this to complete before proceeding
+- Invoke `/pull-emails` using the Skill tool. This is a catch-up pull for emails that arrived since the morning `/prep-day` run. Wait for it to complete before proceeding. Do not inline its logic.
+- State: "Pull-emails complete: N new emails processed."
 
 ### Step 2: Route any remaining Gemini notes to meetings
 
@@ -16,11 +23,12 @@ Close out a day: pull emails, merge Gemini notes, port scratch pad notes to meet
 Most Gemini notes are eagerly matched by `/pull-emails` (step 4) and never land in inbox. This step catches stragglers -- notes that arrived after the last pull-emails run, or that failed to match eagerly.
 
 - Check `04-Inbox/` for any files with `source: gemini-meeting-notes` or `from: gemini-notes@google.com` in frontmatter
+- State: "Found N Gemini notes in inbox." If 0, skip to Step 3.
 - For each Gemini note:
   - Extract the meeting name and date from the title (format: `Notes: "Meeting Name" Mon DD, YYYY`)
   - Match to an existing meeting note in `03-Meetings/` using the same matching logic as `/pull-emails` step 4
   - **If a matching meeting note exists:**
-    - Store the full Gemini content in `03-Meetings/<type>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
+    - Store the full Gemini content in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
     - Update the meeting file's `transcript:` frontmatter to point to the `_transcripts/` file
     - If `## Notes` already has hand-taken content (not just placeholder), add a `## Gemini Summary` section at the end
     - If `## Notes` is empty/placeholder, populate it with the Gemini content and still add `## Gemini Summary`
@@ -28,24 +36,26 @@ Most Gemini notes are eagerly matched by `/pull-emails` (step 4) and never land 
     - Add `**Source:** [Gemini Notes](url)` at the end of the `## Gemini Summary` section
     - Add recording link to frontmatter `recording:` field if present
   - **If no matching meeting note exists:**
-    - Create a new meeting note using the same classification logic as `/prep-day` step 4
-    - Store Gemini content in the appropriate `_transcripts/` folder
+    - Create a new meeting note in the appropriate series folder (use existing `03-Meetings/<series-folder>/` if one matches, otherwise `03-Meetings/_one-off/`)
+    - Store Gemini content in the series folder's `_transcripts/` subfolder
     - Populate the meeting file with Gemini content in both `## Notes` and `## Gemini Summary`
   - Delete the Gemini note file from `04-Inbox/` after processing
+- State: "Step 2 complete: N Gemini notes routed (M matched existing meetings, K created new)."
 
 ### Step 3: Stop the Slack listener
 
 - If a `/slack-listener` loop is active, stop it before pulling Slack threads (avoids race conditions)
 - Find the active pull-slack cron/task and cancel it
-- Post to #obsidian-luke: "Listener stopped -- closing day"
+- Post to #{{SLACK_CHANNEL_NAME}}: "Listener stopped -- closing day"
 - If no listener is running, skip silently
 
-### Step 4: Catch up on Slack meeting threads (#obsidian-luke, C0ASX58TJ4T)
+### Step 4: Catch up on Slack meeting threads (#{{SLACK_CHANNEL_NAME}}, {{SLACK_CHANNEL_ID}})
 
 This is a catch-up pass. During the day, `/pull-slack` (via the listener) captures thread replies directly to meeting note `## Notes` in real-time. This step picks up anything it missed (e.g., listener wasn't running, replies came in after the last poll).
 
 - Use `mcp__slack__get_channel_history` to read today's messages from the channel
 - Identify meeting thread anchors (format: `[HH:MM] Meeting Name` as first line)
+- State: "Found N thread anchors. Checking for unprocessed replies."
 - For each thread anchor with replies:
   - Use `mcp__slack__get_thread` to read all replies
   - **Skip replies already marked with `:white_check_mark:` reaction** (already processed by pull-slack)
@@ -60,61 +70,31 @@ This is a catch-up pass. During the day, `/pull-slack` (via the listener) captur
 
 - Read the weekly note (`02-Weekly/YYYY-Www.md`)
 - Find the `### DayName` section for the target day
-- For each `#### HH:MM -- Meeting Name [type]` block in the scratch pad:
+- State: "Found N meeting blocks to process."
+- For each `#### HH:MM - Meeting Name` block in the scratch pad:
   - Read the bullets under it (these are the user's hand-taken notes)
-  - If there are actual notes (not just empty `-`):
-    - Find the corresponding meeting note in `03-Meetings/<type>/`
+  - If there are actual notes (not just empty `-` or `_Notes:_` placeholder):
+    - Find the corresponding meeting note in `03-Meetings/`
     - **Check if `## Notes` already has content** (from pull-slack thread capture or earlier processing)
       - If yes: merge scratch pad notes above existing content with a `**From scratch pad:**` header. Don't duplicate lines that already appear.
       - If no: write scratch pad notes into `## Notes`
     - If Gemini content was already merged in Step 2, keep both: hand-taken notes first, then `## Gemini Summary`
   - Replace the `####` block in the scratch pad with a collapsed link:
-    `- HH:MM -- Meeting Name -> [[03-Meetings/type/YYYY-MM-DD-meeting-name]]`
+    `- HH:MM - Meeting Name -> [[03-Meetings/<series-folder>/YYYY-MM-DD-meeting-name]]`
   - If the `####` block has NO notes AND the meeting file has NO content (no Gemini, no Slack thread notes):
     - Delete the empty meeting note file from `03-Meetings/`
     - Remove the entry from the scratch pad entirely (meeting didn't happen or wasn't relevant)
+- State: "Step 5 complete: N meetings ported, M empty meetings removed."
 
-### Step 6: Summarize Claude Code sessions and GitHub activity
+### Step 6: Sync sessions and GitHub activity
 
-Run this before the day summary so session data is upgraded and available.
-
-**Session summaries:**
-- Load all JSON files in `07-Usage/sessions/` from the last 7 days (by filename prefix). For each, check if its `start`/`end` time range overlaps the target date -- i.e., the session's `start` is before end-of-target-day AND `end` is on or after start-of-target-day. This catches resumed sessions that span multiple days and are filed under their original start date.
-- For each session that overlaps the target date:
-  - Check `summary_type` field:
-    - If `"llm"` -- skip, already has a quality summary
-    - If `"heuristic"` or `null` -- upgrade it with an LLM-generated summary
-  - To generate an LLM summary: read the transcript at the path stored in the session's `cwd` + `.claude/projects/` (the `session_id` field maps to the transcript filename)
-  - Generate a 1-2 sentence summary of what the session accomplished based on the transcript content, tool calls, and files touched
-  - Write the summary back into the session JSON's `summary` field and set `summary_type` to `"llm"`
-  - Verify `initiatives` field -- the SessionEnd hook infers these from project name and file paths. Correct if wrong, add any missing (use transcript content for context)
-
-**GitHub activity (PRs and direct pushes):**
-- Run `gh search prs --author=lukeinglis --created=YYYY-MM-DD` to find PRs created today
-- For each PR found, capture: repo, number, title, state, additions, deletions
-- Also check for direct commits (not just PRs) in work repos. For each repo below, run `gh api repos/{repo}/commits?author=lukeinglis&since=YYYY-MM-DDT00:00:00Z&until=YYYY-MM-DDT23:59:59Z` to get direct commits:
-  - `lukeinglis/its_hub_demo`
-  - `lukeinglis/its_hub_luke`
-  - `Red-Hat-AI-Innovation-Team/its_hub`
-  - `Red-Hat-AI-Innovation-Team/sdg_hub`
-  - `Red-Hat-AI-Innovation-Team/Red-Hat-AI-Innovation-Team.github.io`
-- Filter out personal repos (FantasyBaseball, FantasyFootball, Luke) and fork-sync repos (sdg_hub_luke)
-- Write GitHub activity into a `github` field on each matching session JSON (match by cwd/repo name)
-- If PRs or commits don't match a session (e.g., done outside Claude Code), log them in a separate `07-Usage/sessions/YYYY-MM-DD-github.json` file
-
-**Sync missing sessions:**
-- Run `python3 07-Usage/sync-sessions.py` to backfill any sessions the SessionEnd hook missed (e.g., sessions exited with Ctrl+C). This is idempotent and safe to run repeatedly.
-
-**Dashboard update:**
-- Run `python3 07-Usage/rollup.py` to regenerate `_dashboard.md` from all session JSONs
-- On Fridays (or if the user requests it), add `--insights` to regenerate the deep insights section. On other days, cached insights from the last weekly run are reused automatically.
-- The script handles all rollups: Today, This Week, This Month, YTD, All Time, daily breakdown, charts, insights, and recent accomplishments
+- Invoke `/sync-sessions` using the Skill tool. Wait for it to complete before proceeding.
 
 ### Step 7: Summarize the day
 
-- Read all content under `### DayName` for the target day (including the collapsed meeting links and any free-form notes)
-- Read the meeting notes that were populated today (the full content in `03-Meetings/`)
-- Read the session JSONs identified in step 6 (those whose start/end range overlaps the target date, now upgraded to LLM-quality summaries)
+- Before writing, enumerate all sources:
+  "Reading: N meeting notes [list all paths], M session summaries [list], scratch pad content for DayName."
+  Read ALL listed sources. Then write the summary.
 - Write a concise `**Summary:**` for the day:
   - 2-4 sentences capturing: what happened, key decisions, important context, key accomplishments from Claude Code sessions
   - Write in Luke's voice: concise, no fluff, no hedging, no emdash
@@ -145,18 +125,32 @@ Skip this step if the target day is not Friday.
 
 **9b. End-of-week summary:**
 1. Read the full weekly note (`02-Weekly/YYYY-Www.md`) -- all scratch pads, meeting links, daily summaries
-2. Read the meeting notes that were populated this week (follow the `[[03-Meetings/...]]` links)
+2. Enumerate all meeting notes from this week: "This week's meeting notes: [list all paths from wikilinks in scratch pad]. Reading all N before writing."
+   Read ALL listed meeting notes.
 3. Write a curated summary to `02-Weekly/_summaries/YYYY-Www-summary.md`:
    - 10-20 bullets covering: key decisions, patterns, learnings, open loops, things that shipped
    - Write in Luke's voice: concise, bullet-heavy, no fluff, no hedging
    - Group by theme (initiative, cross-cutting, vault/tooling) not by day
 4. Flip `summarized: true` in the weekly note's frontmatter
+5. Move the raw weekly note to `02-Weekly/_archive/`
+
+**9c. Metrics capture:**
+1. Count the following metrics for this week:
+   - `meetings`: count meeting note files created this week (glob `03-Meetings/*/YYYY-MM-DD-*.md` for dates in the week)
+   - `tasks_completed`: count items in Todo.md Done section with completion dates in the week
+   - `open_loops`: count items in the Open Loops section of the summary just written
+   - `decisions_logged`: count new decision files created this week (glob `01-Components/*/decisions/YYYY-MM-DD-*.md`)
+   - `cc_sessions`: sum sessions from `07-Usage/` dashboard data for dates in the week
+   - `cc_active_hours`: sum active hours from `07-Usage/` dashboard data for dates in the week
+2. Add a `metrics` block to the summary file's frontmatter with these values
+3. Append a new row to `02-Weekly/_summaries/_trends.md` (both the charts data arrays and the Raw Data table)
+4. State: "Metrics captured: N meetings, N tasks completed, N open loops, N decisions, N sessions, N active hours."
 
 ### Step 10: Prep next working day (optional)
 
 - Skip this step if the user passed `--no-prep` or if local time is after 9pm
 - Determine the next working day (skip weekends: if today is Friday, prep Monday)
-- Run the `/prep-day` flow for that day
+- Invoke `/prep-day` using the Skill tool with the next working day as argument.
 - This gives a baseline view of what's coming, which the user can review that evening or the next morning
 
 ## Report
@@ -175,7 +169,7 @@ On Fridays, append one line: "Weekly cleanup: N tasks rolled, N archived. EOW su
 
 - **Weekend:** If the target day is Friday, run the Friday steps (8, 9) and prep Monday (Step 10). If Saturday/Sunday, skip Steps 8, 9, and 10.
 - **No weekly note:** Create one from the template before proceeding.
-- **Meeting in scratch pad but not in 03-Meetings/:** The user added it manually. Create the meeting note file during the port step using the `[type]` tag from the scratch pad.
+- **Meeting in scratch pad but not in 03-Meetings/:** The user added it manually. Create the meeting note file during the port step (use existing series folder or `_one-off/`).
 - **Meeting in 03-Meetings/ but not in scratch pad:** The user deleted it. If it has Gemini content, keep it. If empty, delete it.
 - **Re-running /close-day:** Safe to re-run. Already-ported meetings (collapsed links) are skipped. Slack threads already merged are detected by the `**From Slack:**` separator. Summary is overwritten with latest.
 - **Slack MCP auth failure:** If the Slack channel read fails, log the error and continue with the rest of the close-day flow. Don't block email/Gemini/scratch pad processing.

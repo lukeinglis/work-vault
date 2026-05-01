@@ -29,7 +29,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - RL for reasoning: GRPO, RLVR, reward-guided generation (as it intersects with ITS sampling)
 - **NOT in scope (covered by redhat-ai):** inference engine performance, distributed inference architecture, model serving platforms, inference hardware, inference cost per token, Kubernetes inference networking
 - **Key question:** What's advancing in test-time compute ALGORITHMS AND TECHNIQUES that Red Hat should know about, respond to, or build on?
-- **Jira:** RHAISTRAT, component: Inference-Time Scaling
+- **Jira:** {{JIRA_PROJECT_STRAT}}, component: {{COMPONENT_1}}
 
 ### Fine-Tuning (`fine-tuning`)
 - **File:** `01-Components/fine-tuning/research/competitive-landscape.md`
@@ -42,7 +42,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - Data quality and curation research (filtering, decontamination, curriculum learning)
   - Enterprise fine-tuning trends (on-prem vs cloud, compliance, cost structures)
 - **Key question:** What's the competitive landscape for enterprise fine-tuning and SDG, and where do SDG-Hub and Training-Hub fit?
-- **Jira:** RHAISTRAT, component: Fine-Tuning
+- **Jira:** {{JIRA_PROJECT_STRAT}}, component: {{COMPONENT_2}}
 
 ### AI Innovation (`ai-innovation`)
 - **File:** `01-Components/ai-innovation/research/competitive-landscape.md`
@@ -56,7 +56,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - Research tools and knowledge management (NotebookLM, Elicit, Semantic Scholar tools)
   - Notable GitHub repos, Product Hunt launches, Hacker News trending projects
 - **Key question:** What new tools or capabilities should the team know about or adopt?
-- **Jira:** RHAISTRAT, component: AI Innovation
+- **Jira:** {{JIRA_PROJECT_STRAT}}, component: {{COMPONENT_3}}
 
 ### Red Hat AI (`redhat-ai`) -- DEFAULT
 - **File:** `01-Components/ai-innovation/research/competitive-landscape-red-hat-ai.md`
@@ -71,7 +71,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - Regulatory and compliance trends affecting enterprise AI adoption
   - Customer and community sentiment (reviews, case studies, adoption signals)
 - **Key question:** How is Red Hat AI positioned in the enterprise AI platform market, what are competitors doing, and what industry trends should we be tracking?
-- **Jira:** RHAISTRAT, all components
+- **Jira:** {{JIRA_PROJECT_STRAT}}, all components
 
 ## Execution Philosophy
 
@@ -92,14 +92,15 @@ At `quick` level, prioritize recency and signal. Get the headlines, skip the dee
 
    a. **Read the existing research brief** to understand what's already captured, when it was last updated, and what the current state of knowledge is. This determines what's "new" vs. already known.
 
-   b. **Pull active Jira work (standard and deep only).** Query RHAISTRAT for active Features and Epics matching the initiative's component. This becomes the baseline for alignment analysis. Use the Jira MCP tools.
+   b. **Pull active Jira work (standard and deep only).** Query {{JIRA_PROJECT_STRAT}} for active Features and Epics matching the initiative's component. This becomes the baseline for alignment analysis. Use the Jira MCP tools.
 
    c. **Conduct phased web research, scaled to depth level.**
 
       **Phase 1 -- Broad landscape scan:**
       - `quick`: 5-8 search queries across highest-priority research areas
-      - `standard`: 10-15 search queries across all research areas
-      - `deep`: 15-20 search queries with varied formulations per area
+      - `standard`: at least 10 search queries across all research areas
+      - `deep`: at least 20 search queries with varied formulations per area
+      State: "Executed N searches, fetched M primary source pages."
       - Search academic sources (arxiv, semantic scholar, Google Scholar)
       - Search industry sources (company blogs, release announcements, product launches)
       - Search community sources (Reddit r/MachineLearning, r/LocalLLaMA, Hacker News, Twitter/X)

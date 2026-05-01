@@ -38,7 +38,7 @@ Channels tracked by the `/pull-slack` integration.
 
 | Channel | ID | Purpose |
 |---|---|---|
-| #obsidian-luke | C0ASX58TJ4T | Two-way command channel (prep, notes, commands) |
+| #{{SLACK_CHANNEL_NAME}} | {{SLACK_CHANNEL_ID}} | Two-way command channel (prep, notes, commands) |
 | #obsidian-log | C0AT2KQAYQN | MCP server diagnostic logs (separate from conversation) |
 
 ## Adding a New Channel
@@ -53,7 +53,7 @@ Channels tracked by the `/pull-slack` integration.
 Channel access is via the Slack MCP server (`mcp__slack__*` tools). No local database or scripts needed.
 
 **Daily flow:**
-1. `/prep-day` posts day header + meeting anchors to #obsidian-luke
+1. `/prep-day` posts day header + meeting anchors to #{{SLACK_CHANNEL_NAME}}
 2. `/slack-listener` polls the channel every 5 minutes for commands (todo, decision, note, meeting, search, jira)
 3. `/close-day` reads meeting threads and ports notes back to the vault
 

@@ -42,11 +42,13 @@ Examples:
      - `## Consequences` -- leave as placeholder unless obvious from context
    - Keep it concise. The user can flesh it out later.
 
-5. **Add backlinks:**
+5. **Verify:** File exists at the expected path with non-empty `## Decision` section.
+
+6. **Add backlinks:**
    - If this session is working on a meeting note, spec draft, or initiative file, add a `[[decisions/YYYY-MM-DD-short-title]]` link to the Related or Scratch Pad section of that file
    - If a relevant `_overview.md` exists, do NOT modify it (too noisy for every decision)
 
-6. **Report:**
+7. **Report:**
    - Show the file path created
    - Show the one-line decision summary
    - If called interactively (not from `/pull-slack`): suggest "Want to flesh out the context or options?"

@@ -3,7 +3,9 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
 ## Steps
 
 1. Search Gmail for labeled emails:
-   - Use `search_gmail_messages` with query `label:z---obsidian` and `user_google_email: linglis@redhat.com`, `page_size: 25`
+   - Use `search_gmail_messages` with query `label:z---obsidian` and `user_google_email: {{GOOGLE_EMAIL}}`, `page_size: 25`
+   - If the response includes a `next_page_token`, call `search_gmail_messages` again with that token. Repeat until no token is returned. Collect ALL message IDs across all pages before proceeding.
+   - State: "Found N messages across P pages."
    - If no messages found, report "No new emails to pull" and stop
 
 2. Load the imported IDs tracker:
@@ -55,6 +57,7 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
      - Create a new file in `04-Inbox/intake/` as before
 
 5. For each new message, create a markdown file in `04-Inbox/intake/`:
+   - State the count before creating files: "Creating intake files for N messages (M Gemini-matched, K already imported, J to write)." All numbers must sum to total messages found in step 1.
    - Filename: `YYYY-MM-DD-slugified-subject.md` (date from the email's sent date, slug max 60 chars)
    - If file already exists, append `-2`, `-3`, etc.
    - Use this template:
@@ -161,4 +164,6 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - Run: `python3 scripts/email-pull/gmail_label.py MSG_ID1 MSG_ID2 ...`
    - This calls the Gmail API to remove the label
 
-8. Report results (one line): "Pulled 3 emails (1 Gemini note matched to ITS standup, 2 to intake). Labels removed."
+8. **Verify:** Count of files in `04-Inbox/intake/` matching today's date equals J (from step 5 count). If mismatch, investigate before proceeding.
+
+9. Report results (one line): "Pulled N emails across P pages (M Gemini-matched, J to intake). Labels removed."

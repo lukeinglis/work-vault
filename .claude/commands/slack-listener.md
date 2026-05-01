@@ -1,4 +1,4 @@
-Start polling #obsidian-luke for commands. Run `/loop 5m /pull-slack` to check the channel every 5 minutes and dispatch any new messages.
+Start polling #{{SLACK_CHANNEL_NAME}} for commands. Run `/loop 5m /pull-slack` to check the channel every 5 minutes and dispatch any new messages.
 
 This is the listener half of the daily Slack integration. Typical flow:
 
@@ -13,9 +13,9 @@ This is the listener half of the daily Slack integration. Typical flow:
 
 Before entering the loop, run these preflight checks in order. Stop on any failure.
 
-1. **Verify Slack connection:** Make one test call (`mcp__slack__get_channel_history` on C0ASX58TJ4T, limit 1). If it fails with auth errors, tell the user to refresh tokens (`python3 ~/slack-mcp/scripts/setup-slack-mcp.py --refresh-tokens`) and stop.
+1. **Verify Slack connection:** Make one test call (`mcp__slack__get_channel_history` on {{SLACK_CHANNEL_ID}}, limit 1). If it fails with auth errors, tell the user to refresh tokens (`python3 {{SLACK_TOKEN_REFRESH_CMD}} --refresh-tokens`) and stop.
 
-2. **Check for day header:** Look for today's `-- YYYY-MM-DD --` message in #obsidian-luke. If missing, warn: "No day header found -- run /prep-day first?" and stop.
+2. **Check for day header:** Look for today's `-- YYYY-MM-DD --` message in #{{SLACK_CHANNEL_NAME}}. If missing, warn: "No day header found -- run /prep-day first?" and stop.
 
 3. **Pin command reference card:** Check if the channel has a pinned message containing the command reference. If not, pin this message:
 
@@ -31,7 +31,7 @@ Before entering the loop, run these preflight checks in order. Stop on any failu
    Or just type naturally -- intent is classified automatically.
    ```
 
-4. **Post listener status:** Post to #obsidian-luke: "Listener active"
+4. **Post listener status:** Post to #{{SLACK_CHANNEL_NAME}}: "Listener active"
 
 5. **Start the loop:** Run `/loop 5m /pull-slack`
 

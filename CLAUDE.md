@@ -1,9 +1,11 @@
 # Work Vault -- Claude Code Context
 
 ## Style & Voice (Applies to Everything)
-- Write in my voice: concise, bullet-heavy, no fluff, no hedging, no emdashes
+- Write in my voice: concise, bullet-heavy, no fluff, no hedging
+- No emdashes or double-dashes (--) in any output. Use commas, periods, or colons instead.
 - Don't over-format. Headers and bold only where they add clarity
 - When uncertain about routing or structure, ask before creating files
+- When editing tickets, descriptions, or customer-facing content: minimal, targeted changes. Preserve the original author's voice and intent.
 
 ## What This Vault Is
 
@@ -20,15 +22,16 @@ Customize the `01-Components/` folder to match your product areas. Each componen
 | `Todo.md` | **Single source of truth for all tasks** |
 | `01-Components/<component>/` | `_overview.md`, `research/`, `decisions/`, `initiatives/` |
 | `01-Components/<component>/initiatives/<initiative>/` | `spec-drafts/`, `decisions/` |
-| `02-Weekly/` | Weekly scratch pads (`YYYY-Www.md`), `_summaries/` for curated EOW summaries |
+| `02-Weekly/` | Current week's scratch pad (`YYYY-Www.md`), `_summaries/` for EOW summaries, `_archive/` for past weeks |
 | `03-Meetings/<recurring-meeting>/` | Notes for each recurring meeting series, `_transcripts/` inside |
 | `03-Meetings/_one-off/` | Non-recurring meetings, `_transcripts/` inside |
 | `04-Inbox/` | Quick capture -- triage to real homes |
 | `05-People/` | Stakeholder reference |
-| `06-Presentations/` | Slide decks and presentation materials |
+| `06-Presentations/` | Slide decks by initiative (its/, fine-tuning/, red-hat-ai/, cross-initiative/) |
 | `07-Usage/` | Claude Code session logs (`sessions/`), `_dashboard.md`, `_insights_cache.json` |
 | `99-Archive/` | Shipped/killed work, completed todos by year |
 | `Templates/` | Templates for every note type |
+| `scripts/` | Automation: email-pull, slack-pull, sync-template, sanitize utilities |
 
 ## Conventions
 - Meeting notes: `YYYY-MM-DD-short-topic.md`
@@ -38,13 +41,12 @@ Customize the `01-Components/` folder to match your product areas. Each componen
 - Use `[[wikilinks]]` liberally. Meeting notes tag initiatives via `initiatives:` frontmatter.
 - Initiative status values: `active`, `paused`, `shipped`, `archived`
 
-## Editing Principles
-- When editing tickets, descriptions, or customer-facing content: make minimal, targeted changes. Do NOT rewrite or reframe beyond what's requested. Preserve the original author's voice and intent.
+## Skill Execution Protocol
 
-## Code Changes
-- Always sanitize for edge cases like Infinity, NaN, null, and division by zero in frontend code.
-- When implementing ranking/scoring logic, confirm tie-handling rules before coding.
-- After making changes, verify the fix addresses the actual root cause -- don't assume the first hypothesis is correct.
+- **Sub-skill invocation:** When a skill says "Run `/skill-name`" or "Invoke `/skill-name`", use the Skill tool. Never inline a sub-skill's logic. The sub-skill's .md file defines its complete behavior.
+- **Pagination:** Any API call that returns a `next_page_token`, `nextPageToken`, or `page_token` MUST be repeated with that token until no token is returned. Never process only the first page.
+- **List completeness:** When processing a list of N items (emails, messages, meetings, tickets), process all N. State the count before starting ("Found N items") so gaps are visible.
+- **Source enumeration for summaries:** Before writing any summary (day summary, weekly summary, meeting notes), list all sources by path and count. "Reading: N meeting notes [paths], M sessions." Read all listed sources before writing.
 
 ## Path-Scoped Rules
 

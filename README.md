@@ -67,7 +67,11 @@ The vault ships with `01-Components/example-component/`. Rename and duplicate th
 
 Each component gets an `_overview.md` (use `Templates/initiative-overview.md`). Initiatives are time-bound projects within a component.
 
-### 3. Set Up MCP Servers (Optional but Recommended)
+### 3. Configure Integrations
+
+The slash commands (like `/prep-day`, `/pull-slack`, `/close-day`) use `{{PLACEHOLDER}}` variables for personal settings like your email, Slack channel ID, and GitHub username. See [docs/setup-integrations.md](docs/setup-integrations.md) for a complete guide with a quick-setup script.
+
+### 4. Set Up MCP Servers (Optional but Recommended)
 
 MCP servers connect Claude Code to external services. See [docs/mcp-setup.md](docs/mcp-setup.md) for detailed setup instructions for:
 
@@ -76,7 +80,7 @@ MCP servers connect Claude Code to external services. See [docs/mcp-setup.md](do
 - **Google Workspace** -- calendar, email, docs
 - **Browser** -- web research (already configured in `.mcp.json`)
 
-### 4. Start Using Claude Code
+### 5. Start Using Claude Code
 
 Open Claude Code in the vault directory and try:
 
@@ -214,6 +218,7 @@ Create a new `.md` file in `.claude/commands/`. The filename becomes the command
 | Doc | What's in it |
 |-----|-------------|
 | [Philosophy](docs/philosophy.md) | Why the vault is structured this way -- components vs. initiatives, the inbox pattern, decision logging, and the shared task system |
+| [Integration Setup](docs/setup-integrations.md) | Configure slash command placeholders (email, Slack, GitHub, Jira) |
 | [MCP Setup](docs/mcp-setup.md) | Step-by-step setup for Jira, Slack, Google Workspace, and Browser MCP servers |
 | [QuickAdd Shortcuts](docs/quickadd-shortcuts.md) | The three pre-configured Obsidian capture shortcuts and how to customize them |
 | [Examples](docs/examples/) | Filled-in examples of a meeting note, decision record, weekly scratch pad, and Todo.md |
