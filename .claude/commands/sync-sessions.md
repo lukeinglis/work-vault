@@ -2,6 +2,13 @@ Summarize Claude Code sessions and GitHub activity for a target date. Called by 
 
 **Usage:** `/sync-sessions` (defaults to today) or `/sync-sessions 2026-04-28`
 
+## Execution Rules
+
+- Execute every step in order. Do not skip, combine, or abbreviate steps.
+- Before processing a list, state its count.
+- After completing a step that produces outputs, confirm what was done.
+- If a step fails or partially completes, state what succeeded and what did not before moving on.
+
 ## Steps
 
 ### Step 1: Sync missing sessions

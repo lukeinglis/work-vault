@@ -1,5 +1,12 @@
 Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder, then remove the label.
 
+## Execution Rules
+
+- Execute every step in order. Do not skip, combine, or abbreviate steps.
+- Before processing a list, state its count: "Found N messages" / "Creating N intake files."
+- After completing a step that produces outputs, confirm: "Step N complete: processed X, skipped Y."
+- If a step fails or partially completes, state what succeeded and what did not before moving on.
+
 ## Steps
 
 1. Search Gmail for labeled emails:
@@ -24,7 +31,7 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - Extract the meeting name and date from the email subject (format: `Notes: "Meeting Name" Mon DD, YYYY`)
    - **Try to match to an existing meeting file in `03-Meetings/`** using the meeting name matching logic below
    - **If a match is found:**
-     - Store the full Gemini doc content in `03-Meetings/<type>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
+     - Store the full Gemini doc content in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
      - Update the meeting file's frontmatter: set `transcript:` to point to the `_transcripts/` file
      - Add a `## Gemini Summary` section (at the end of the meeting file) with the Summary portion from the doc
      - If `## Notes` is still placeholder, populate it with the Details section from the doc
@@ -50,7 +57,7 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - **Try to match to an existing meeting file in `03-Meetings/`** using the same matching logic as step 4
    - **If a match is found:**
      - Add `recording:` field to frontmatter (Google Drive link)
-     - Store transcript in `03-Meetings/<type>/_transcripts/YYYY-MM-DD-meeting-slug-transcript.md`
+     - Store transcript in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-transcript.md`
      - Update `transcript:` frontmatter to point to the `_transcripts/` file
      - Do NOT create a file in `04-Inbox/intake/`
    - **If no match:**

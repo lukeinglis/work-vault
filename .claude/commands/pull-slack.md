@@ -8,6 +8,13 @@ All thread replies must @mention the user (`<@{{SLACK_USER_ID}}>`) so Slack send
 
 See `scripts/slack-pull/Slack Channels.md` for the full list of tracked channels and IDs.
 
+## Execution Rules
+
+- Execute every step in order. Do not skip, combine, or abbreviate steps.
+- Before processing a list, state its count: "Found N messages" / "N thread anchors to check."
+- After completing a step that produces outputs, confirm: "Step N complete: processed X, skipped Y."
+- If a step fails or partially completes, state what succeeded and what did not before moving on.
+
 ## Steps
 
 ### Step 1: Read new messages from #{{SLACK_CHANNEL_NAME}}
@@ -52,8 +59,7 @@ For each new top-level message, match the prefix and route:
 **`meeting:` -- Create an ad-hoc meeting note**
 - Parse the text after the prefix for meeting name and any context/notes
 - This is for spur-of-the-moment meetings -- a quick way to capture context that gets formalized into a proper meeting note
-- Determine the meeting type using `/prep-day` step 4 classification (default: `_one-off`)
-- Create a meeting note at `03-Meetings/<type>/YYYY-MM-DD-<slugified-name>.md` using the standard meeting note template
+- Create a meeting note in the appropriate series folder (use existing `03-Meetings/<series-folder>/` if one matches, otherwise `03-Meetings/_one-off/YYYY-MM-DD-<slugified-name>.md`) using the standard meeting note template
 - If context/notes were included after the meeting name, add them to the `## Notes` section
 - Add a `####` block to today's scratch pad in the weekly note (use current time as the time slot)
 - Post a meeting message to #{{SLACK_CHANNEL_NAME}} in the same format as prep-day meeting messages:

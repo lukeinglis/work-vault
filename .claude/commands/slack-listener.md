@@ -9,9 +9,12 @@ This is the listener half of the daily Slack integration. Typical flow:
 /close-day         -- pulls threads, ports notes, stops listener
 ```
 
-## Startup
+## Execution Rules
 
-Before entering the loop, run these preflight checks in order. Stop on any failure.
+- Execute every startup step in order. Stop on any failure.
+- State the result of each preflight check before moving to the next.
+
+## Startup
 
 1. **Verify Slack connection:** Make one test call (`mcp__slack__get_channel_history` on {{SLACK_CHANNEL_ID}}, limit 1). If it fails with auth errors, tell the user to refresh tokens (`python3 {{SLACK_TOKEN_REFRESH_CMD}} --refresh-tokens`) and stop.
 
@@ -33,7 +36,7 @@ Before entering the loop, run these preflight checks in order. Stop on any failu
 
 4. **Post listener status:** Post to #{{SLACK_CHANNEL_NAME}}: "Listener active"
 
-5. **Start the loop:** Run `/loop 5m /pull-slack`
+5. **Start the loop:** Invoke `/loop 5m /pull-slack` using the Skill tool.
 
 ## Shutdown
 

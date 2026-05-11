@@ -7,6 +7,12 @@ Examples:
 - `/decision ITS gateway will use Envoy ext-proc, not standalone proxy`
 - `/decision Inbox subcategories: comms, field-intel, initiatives, releases, strategy, process, other`
 
+## Execution Rules
+
+- Execute every step in order. Do not skip, combine, or abbreviate steps.
+- If scope is ambiguous, ask before creating the file.
+- After creating the file, verify it exists at the expected path.
+
 ## Steps
 
 1. **Parse the input:**
