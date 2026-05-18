@@ -1,5 +1,10 @@
 # Work Vault -- Claude Code Context
 
+## CRITICAL: Never Post on My Behalf
+- NEVER send messages to Slack, Gmail, Google Chat, or any external channel directly. This includes post_message, send_dm, send_gmail_message, and any similar tools.
+- Always draft the content and present it for me to copy/send myself.
+- This is non-negotiable and applies to all contexts.
+
 ## Style & Voice (Applies to Everything)
 - Write in my voice: concise, bullet-heavy, no fluff, no hedging
 - No emdashes or double-dashes (--) in any output. Use commas, periods, or colons instead.
