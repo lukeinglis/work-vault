@@ -20,16 +20,27 @@ Close out a day: pull emails, merge Gemini notes, port scratch pad notes to meet
 
 **Rule: one file per meeting, everything consolidated.**
 
-Most Gemini notes are eagerly matched by `/pull-emails` (step 4) and never land in inbox. This step catches stragglers -- notes that arrived after the last pull-emails run, or that failed to match eagerly.
+This step catches Gemini notes that `/pull-emails` didn't match, or that have missing content (empty shells from earlier sessions where the Google Docs API wasn't available).
+
+**CRITICAL: Every Gemini note MUST result in a meeting file. The transcript IS the meeting record, even if the user didn't attend, was OOO, or left zero notes.**
 
 - Check `04-Inbox/` for any files with `source: gemini-meeting-notes` or `from: gemini-notes@google.com` in frontmatter
 - State: "Found N Gemini notes in inbox." If 0, skip to Step 3.
 - For each Gemini note:
-  - Extract the meeting name and date from the title (format: `Notes: "Meeting Name" Mon DD, YYYY`)
+
+  **2a. Backfill content if missing:**
+  - Check if the file has actual content (a `## Summary` section with non-placeholder text)
+  - If content is missing:
+    - If `message_id:` exists in frontmatter: run `python3 scripts/email-pull/gemini_docs.py <message_id>` and parse the JSON output
+    - If `google_doc:` exists but no `message_id:`: extract the doc ID from the URL and run `python3 scripts/email-pull/gemini_docs.py --doc-id <doc_id>`
+    - Update the file with the fetched content (Summary, Details, Next Steps) and add/update `google_doc:` in frontmatter
+
+  **2b. Match and route:**
+  - Extract the meeting name and date (from the file title, or from the script output's `meeting_name` and `meeting_date`)
   - Match to an existing meeting note in `03-Meetings/` using the same matching logic as `/pull-emails` step 4
   - **If a matching meeting note exists:**
     - Store the full Gemini content in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
-    - Update the meeting file's `transcript:` frontmatter to point to the `_transcripts/` file
+    - Update the meeting file's `transcript:` frontmatter to point to the `_transcripts/` file, add `google_doc:` URL
     - If `## Notes` already has hand-taken content (not just placeholder), add a `## Gemini Summary` section at the end
     - If `## Notes` is empty/placeholder, populate it with the Gemini content and still add `## Gemini Summary`
     - Extract action items from Gemini's "Suggested next steps" into `## Action Items` (append, don't overwrite existing)
@@ -41,6 +52,26 @@ Most Gemini notes are eagerly matched by `/pull-emails` (step 4) and never land 
     - Populate the meeting file with Gemini content in both `## Notes` and `## Gemini Summary`
   - Delete the Gemini note file from `04-Inbox/` after processing
 - State: "Step 2 complete: N Gemini notes routed (M matched existing meetings, K created new)."
+
+### Step 2b: Calendar reconciliation (catch late Gemini notes)
+
+**This step ensures no meeting transcripts are missed, regardless of email timing or labeling.**
+
+- Fetch the full calendar for the target day using `get_events` (same params as prep-day: `user_google_email: "{{GOOGLE_EMAIL}}"`, `calendar_id: "primary"`, `detailed: true`, target day start/end in America/New_York)
+- Filter to real meetings (same rules as prep-day Step 3: skip declined, skip solo events without Meet links)
+- State: "Calendar shows N meetings for target day."
+- For each meeting on the calendar:
+  - Check if a meeting file exists in `03-Meetings/` with a non-empty `transcript:` field
+  - If transcript already exists, skip
+  - If no transcript: search Gmail for a matching Gemini note using `search_gmail_messages` with query `from:gemini-notes@google.com subject:"MEETING_NAME" after:YYYY/MM/DD before:YYYY/MM/DD+2`
+  - If a matching Gemini email is found:
+    - Fetch its content (text + html for Google Doc URL)
+    - Create the transcript file in the appropriate `_transcripts/` folder
+    - Create or update the meeting file (same routing logic as Step 2)
+    - Update the scratch pad with a collapsed link if not already present
+    - Add the message ID to `.imported_ids.json`
+  - If no Gemini email found, skip silently (meeting may not have had Gemini active)
+- State: "Step 2b complete: N meetings checked, M transcripts backfilled, K already had transcripts."
 
 ### Step 3: Stop the Slack listener
 
@@ -82,7 +113,8 @@ This is a catch-up pass. During the day, `/pull-slack` (via the listener) captur
   - Replace the `####` block in the scratch pad with a collapsed link:
     `- HH:MM - Meeting Name -> [[03-Meetings/<series-folder>/YYYY-MM-DD-meeting-name]]`
   - If the `####` block has NO notes AND the meeting file has NO content (no Gemini, no Slack thread notes):
-    - Delete the empty meeting note file from `03-Meetings/`
+    - **Before deleting:** check if a Gemini note for this meeting exists in `04-Inbox/` (match by meeting name and date). If one exists, route it first using Step 2 logic, then keep the meeting file.
+    - Only delete the empty meeting note file from `03-Meetings/` if there is truly no content from any source (no Gemini note pending, no transcript, no Slack thread)
     - Remove the entry from the scratch pad entirely (meeting didn't happen or wasn't relevant)
 - State: "Step 5 complete: N meetings ported, M empty meetings removed."
 

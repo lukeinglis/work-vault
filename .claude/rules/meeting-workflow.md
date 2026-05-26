@@ -8,6 +8,8 @@ Meetings in `03-Meetings/` by recurring series name, or `_one-off/` for non-recu
 
 **Creating:** Use `Templates/meeting.md`. Fill what I give, leave placeholders. Filename: `YYYY-MM-DD-short-topic.md`.
 
+**Transcript sourcing:** The calendar is the source of truth for what meetings happened, not the email inbox. When closing or prepping a day, always pull the calendar and check every meeting for a transcript. If one is missing, search Gmail directly (`from:gemini-notes@google.com subject:"MEETING_NAME"`) regardless of labels. Never rely solely on labeled emails arriving in the inbox.
+
 **Transcript-driven notes** (when `transcript:` field points to `_transcripts/` file):
 1. Read transcript as source of truth for `## Notes` and `## Action Items`
 2. Extract decisions into `## Decisions`

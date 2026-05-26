@@ -16,6 +16,19 @@ Prep a day's meetings by fetching calendar events, creating meeting note shells,
    - Determine the day of week (Monday, Tuesday, etc.)
    - Determine the ISO week number to find the right weekly note file (`02-Weekly/YYYY-Www.md`)
 
+1b. **Catch up on yesterday's missing transcripts:**
+
+   This step catches Gemini notes that arrived after close-day ran (or if close-day wasn't run). It ensures no meeting from the previous working day is left without a transcript.
+
+   - Determine the previous working day (if target is Monday, look back to Friday)
+   - Fetch the calendar for that day using `get_events` (same params as Step 2)
+   - Filter to real meetings (same rules as Step 3)
+   - For each meeting: check if a meeting file exists in `03-Meetings/` with a non-empty `transcript:` field
+   - For meetings missing transcripts: search Gmail for a matching Gemini note using `search_gmail_messages` with query `from:gemini-notes@google.com subject:"MEETING_NAME" after:YYYY/MM/DD before:YYYY/MM/DD+2`
+   - If found: fetch content, create transcript, create/update meeting file, update scratch pad, add message ID to `.imported_ids.json`
+   - State: "Lookback: N meetings yesterday, M missing transcripts, K backfilled from Gmail."
+   - If all meetings already have transcripts, state: "Lookback: all N meetings from yesterday have transcripts." and move on.
+
 2. **Fetch calendar events:**
    - Use `get_events` with `user_google_email: "{{GOOGLE_EMAIL}}"`, `calendar_id: "primary"`
    - Set `time_min` to start of target date in America/New_York (use `-05:00` during EST Nov-Mar, `-04:00` during EDT Mar-Nov)

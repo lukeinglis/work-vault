@@ -26,19 +26,34 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - **Also** fetch any Gemini meeting note emails (from: `gemini-notes@google.com`) or meeting recording emails (from: `meetings-noreply@google.com`) a second time with `body_format: "html"` to extract Google Doc/Drive URLs
 
 4. For Gemini meeting note emails (from `gemini-notes@google.com`):
-   - Extract the Google Doc URL from the HTML body (look for `docs.google.com/document/d/DOCUMENT_ID` in an `<a>` tag)
-   - Fetch the full doc content using `get_doc_content` with the extracted document ID
-   - Extract the meeting name and date from the email subject (format: `Notes: "Meeting Name" Mon DD, YYYY`)
-   - **Try to match to an existing meeting file in `03-Meetings/`** using the meeting name matching logic below
-   - **If a match is found:**
-     - Store the full Gemini doc content in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
-     - Update the meeting file's frontmatter: set `transcript:` to point to the `_transcripts/` file
-     - Add a `## Gemini Summary` section (at the end of the meeting file) with the Summary portion from the doc
-     - If `## Notes` is still placeholder, populate it with the Details section from the doc
-     - Do NOT create a file in `04-Inbox/intake/`
-     - Log as "matched" in the report
-   - **If no match is found:**
-     - Create the intake file in `04-Inbox/intake/` as before (close-day will route it)
+
+   **CRITICAL: Every Gemini note MUST result in a meeting file. The transcript IS the meeting record, even if the user didn't attend, was OOO, or left zero notes. Never leave a Gemini note as an intake file.**
+
+   **4a. Fetch content using the Python script (primary method):**
+   - Run: `python3 scripts/email-pull/gemini_docs.py <message_id>`
+   - Parse the JSON output. It returns: `meeting_name`, `meeting_date`, `google_doc_url`, `summary`, `details`, `next_steps`, `full_text`
+   - If the script fails or is unavailable, fall back to MCP tools: extract the Google Doc URL from the HTML body, then use `get_doc_content`
+   - **The `google_doc:` URL MUST be stored in frontmatter regardless of whether content fetch succeeds**
+
+   **4b. Match to an existing meeting file in `03-Meetings/`** using the meeting name matching logic below.
+
+   **4c. If a match is found:**
+   - Store the full Gemini doc content in `03-Meetings/<series-folder>/_transcripts/YYYY-MM-DD-meeting-slug-gemini.md`
+   - Update the meeting file's frontmatter: set `transcript:` to point to the `_transcripts/` file, add `google_doc:` URL
+   - Add a `## Gemini Summary` section (at the end of the meeting file) with the Summary portion from the doc
+   - If `## Notes` is still placeholder, populate it with the Details section from the doc
+   - Extract action items from the "Suggested next steps" into `## Action Items`
+   - Do NOT create a file in `04-Inbox/intake/`
+   - Log as "matched" in the report
+
+   **4d. If no matching meeting file exists, CREATE one:**
+   - Use the meeting name to find or create the appropriate series folder in `03-Meetings/`
+   - If a series folder with a similar name exists, use it. Otherwise use `03-Meetings/_one-off/`
+   - Create a meeting note file using the standard meeting template
+   - Store transcript in `_transcripts/`, populate `## Gemini Summary` and `## Notes` from the doc content
+   - Log as "created" in the report
+
+   **4e. Only use the intake path as a last resort** if the Python script fails entirely (no doc URL, no content, error output). In that case, create the intake file but ALWAYS include whatever `google_doc:` URL was extracted, even partially.
 
    **Meeting name matching logic:**
    To match a Gemini email to an existing meeting file, normalize both names:
@@ -49,7 +64,7 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    5. Match if the normalized slugs share >= 70% of words OR one contains the other
    6. Date must match (within 1 day tolerance for timezone edge cases)
 
-4b. For meeting recording emails (from `meetings-noreply@google.com`):
+5. For meeting recording emails (from `meetings-noreply@google.com`):
    - Extract links from the HTML body:
      - Transcript doc: look for `docs.google.com/document/d/DOCUMENT_ID` linked with label "Transcript"
      - Recording: look for `drive.google.com/file/d/FILE_ID` linked with label "Recording"
@@ -63,7 +78,7 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - **If no match:**
      - Create a new file in `04-Inbox/intake/` as before
 
-5. For each new message, create a markdown file in `04-Inbox/intake/`:
+6. For each new message, create a markdown file in `04-Inbox/intake/`:
    - State the count before creating files: "Creating intake files for N messages (M Gemini-matched, K already imported, J to write)." All numbers must sum to total messages found in step 1.
    - Filename: `YYYY-MM-DD-slugified-subject.md` (date from the email's sent date, slug max 60 chars)
    - If file already exists, append `-2`, `-3`, etc.
@@ -165,12 +180,12 @@ Pull emails labeled "z - Obsidian" from Gmail into the vault inbox intake folder
    - Append a `## Transcript` section if transcript content was fetched and not already present
    - Do NOT create a new file in `04-Inbox/intake/`
 
-6. After writing each file, add the message ID to the imported IDs list and save it back to `scripts/email-pull/.imported_ids.json`
+7. After writing each file, add the message ID to the imported IDs list and save it back to `scripts/email-pull/.imported_ids.json`
 
-7. Remove the "z - Obsidian" label from all newly imported messages:
+8. Remove the "z - Obsidian" label from all newly imported messages:
    - Run: `python3 scripts/email-pull/gmail_label.py MSG_ID1 MSG_ID2 ...`
    - This calls the Gmail API to remove the label
 
-8. **Verify:** Count of files in `04-Inbox/intake/` matching today's date equals J (from step 5 count). If mismatch, investigate before proceeding.
+9. **Verify:** Count of files in `04-Inbox/intake/` matching today's date equals J (from step 6 count). If mismatch, investigate before proceeding.
 
-9. Report results (one line): "Pulled N emails across P pages (M Gemini-matched, J to intake). Labels removed."
+10. Report results (one line): "Pulled N emails across P pages (M Gemini-matched/created, J to intake). Labels removed."
