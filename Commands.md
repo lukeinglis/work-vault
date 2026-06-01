@@ -28,16 +28,16 @@ tags: [reference]
 
 ## RFE Commands
 
-| Command | What it does |
-|---|---|
-| `/rfe.create` | Write a new RFE from a problem statement or idea, asking clarifying questions first. |
-| `/rfe.review <KEY> [KEY...]` | Review and improve RFEs by running rubric scoring, feasibility checks, and auto-revision. |
-| `/rfe.submit` | Submit or update RFEs in Jira (creates RHAIRFE tickets or updates existing ones). |
-| `/rfe.split <KEY> [KEY...]` | Split oversized RFEs into smaller, right-sized RFEs. |
-| `/rfe.auto-fix <KEY/JQL>` | Batch review and fix RFEs automatically (reviews, revises, splits). |
-| `/rfe.speedrun` | End-to-end RFE pipeline: create, review, auto-fix, and submit in one pass. |
-| `/assess-rfe <KEY/path/text>` | Assess an RFE against quality criteria and score it. |
-| `/export-rubric` | Export the RFE scoring rubric to artifacts/rfe-rubric.md. |
+| Command                       | What it does                                                                              |
+| ----------------------------- | ----------------------------------------------------------------------------------------- |
+| `/rfe.create`                 | Write a new RFE from a problem statement or idea, asking clarifying questions first.      |
+| `/rfe.review <KEY> [KEY...]`  | Review and improve RFEs by running rubric scoring, feasibility checks, and auto-revision. |
+| `/rfe.submit`                 | Submit or update RFEs in Jira (creates RHAIRFE tickets or updates existing ones).         |
+| `/rfe.split <KEY> [KEY...]`   | Split oversized RFEs into smaller, right-sized RFEs.                                      |
+| `/rfe.auto-fix <KEY/JQL>`     | Batch review and fix RFEs automatically (reviews, revises, splits).                       |
+| `/rfe.speedrun`               | End-to-end RFE pipeline: create, review, auto-fix, and submit in one pass.                |
+| `/assess-rfe <KEY/path/text>` | Assess an RFE against quality criteria and score it.                                      |
+| `/export-rubric`              | Export the RFE scoring rubric to artifacts/rfe-rubric.md.                                 |
 
 ## Strategy Commands
 

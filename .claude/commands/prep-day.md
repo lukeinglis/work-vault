@@ -16,18 +16,23 @@ Prep a day's meetings by fetching calendar events, creating meeting note shells,
    - Determine the day of week (Monday, Tuesday, etc.)
    - Determine the ISO week number to find the right weekly note file (`02-Weekly/YYYY-Www.md`)
 
-1b. **Catch up on yesterday's missing transcripts:**
+1b. **Close any unclosed previous workdays:**
 
-   This step catches Gemini notes that arrived after close-day ran (or if close-day wasn't run). It ensures no meeting from the previous working day is left without a transcript.
+   This step ensures no workday is left unclosed before prepping a new day. It replaces the old transcript-only lookback with a full close-day pass for any missed days.
 
-   - Determine the previous working day (if target is Monday, look back to Friday)
-   - Fetch the calendar for that day using `get_events` (same params as Step 2)
-   - Filter to real meetings (same rules as Step 3)
-   - For each meeting: check if a meeting file exists in `03-Meetings/` with a non-empty `transcript:` field
-   - For meetings missing transcripts: search Gmail for a matching Gemini note using `search_gmail_messages` with query `from:gemini-notes@google.com subject:"MEETING_NAME" after:YYYY/MM/DD before:YYYY/MM/DD+2`
-   - If found: fetch content, create transcript, create/update meeting file, update scratch pad, add message ID to `.imported_ids.json`
-   - State: "Lookback: N meetings yesterday, M missing transcripts, K backfilled from Gmail."
-   - If all meetings already have transcripts, state: "Lookback: all N meetings from yesterday have transcripts." and move on.
+   - Read the weekly note (`02-Weekly/YYYY-Www.md`) for the target date's week AND the previous week's note if the target is Monday or Tuesday (to catch Thursday/Friday gaps)
+   - For each `### DayName` section that falls BEFORE the target date:
+     - Check if the `**Summary:**` line has content (non-empty text after it)
+     - Skip Monday sections that say "Memorial Day", "Holiday", or similar (not a real workday)
+     - Skip Saturday/Sunday sections
+   - If any workday has an empty summary, it is unclosed
+   - State: "Found N unclosed workdays: [list dates]." If all are closed, state: "All previous workdays closed." and move on.
+   - For each unclosed workday, in chronological order:
+     - Invoke `/close-day YYYY-MM-DD` using the Skill tool
+     - Wait for it to complete before closing the next day (each close-day may generate context needed by the next)
+     - The close-day invocation handles everything: emails, Gemini notes, transcript backfill, scratch pad porting, session sync, and day summary
+   - After all unclosed days are processed, state: "Closed N days. Proceeding with prep."
+   - **Note:** close-day's own Step 10 (prep next day) should be skipped when invoked from this lookback, since prep-day will handle it. Pass `--no-prep` if the close-day skill supports it, otherwise the duplicate prep is harmless (prep-day is idempotent).
 
 2. **Fetch calendar events:**
    - Use `get_events` with `user_google_email: "{{GOOGLE_EMAIL}}"`, `calendar_id: "primary"`

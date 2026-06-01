@@ -1,6 +1,8 @@
 Close out a day: pull emails, merge Gemini notes, port scratch pad notes to meeting files, summarize the day, then prep tomorrow.
 
-**Usage:** `/close-day` (defaults to today) or `/close-day 2026-04-08`
+**Usage:** `/close-day` (defaults to today) or `/close-day 2026-04-08` or `/close-day 2026-04-08 --no-prep`
+
+Pass `--no-prep` to skip Step 10 (prep next day). Used when `/prep-day` calls `/close-day` for unclosed lookback days.
 
 ## Execution Rules
 
