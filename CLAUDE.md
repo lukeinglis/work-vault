@@ -32,7 +32,7 @@ Customize the `01-Components/` folder to match your product areas. Each componen
 | `03-Meetings/_one-off/` | Non-recurring meetings, `_transcripts/` inside |
 | `04-Inbox/` | Quick capture -- triage to real homes |
 | `05-People/` | Stakeholder reference |
-| `06-Presentations/` | Slide decks by initiative (its/, fine-tuning/, red-hat-ai/, cross-initiative/) |
+| `06-Presentations/` | Slide decks by initiative or cross-cutting theme |
 | `07-Usage/` | Claude Code session logs (`sessions/`), `_dashboard.md`, `_insights_cache.json` |
 | `99-Archive/` | Shipped/killed work, completed todos by year |
 | `Templates/` | Templates for every note type |

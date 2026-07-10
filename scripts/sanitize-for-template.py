@@ -85,11 +85,17 @@ def sanitize_claude_md():
     src = re.sub(r"- `rfe-assessment\.md`.*\n", "", src)
     src = re.sub(r"- `jira-ecosystem\.md`.*\n", "", src)
 
+    src = re.sub(
+        r"\| `06-Presentations/` \| Slide decks by initiative \(.*?\) \|",
+        "| `06-Presentations/` | Slide decks by initiative or cross-cutting theme |",
+        src,
+    )
+
     if "06-Presentations" not in src:
         src = src.replace(
             "| `05-People/` | Stakeholder reference |",
             "| `05-People/` | Stakeholder reference |\n"
-            "| `06-Presentations/` | Slide decks and presentation materials |",
+            "| `06-Presentations/` | Slide decks by initiative or cross-cutting theme |",
         )
 
     (TEMPLATE / "CLAUDE.md").write_text(src)
