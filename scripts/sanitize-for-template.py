@@ -5,7 +5,15 @@ Preserves structural improvements while stripping personal content.
 """
 
 import re
+import sys
+import uuid
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from lib.logging import configure_logging, get_logger, clear_and_bind
+
+configure_logging()
+log = get_logger("sanitize")
 
 VAULT = Path.home() / "Documents" / "work-vault"
 TEMPLATE = Path.home() / "projects" / "work-vault-template"
@@ -49,12 +57,19 @@ BANNED_PATTERNS = [
 
 
 def apply_global_replacements(text):
+    replacements_made = 0
     for old, new in GLOBAL_REPLACEMENTS:
-        text = text.replace(old, new)
+        count = text.count(old)
+        if count > 0:
+            text = text.replace(old, new)
+            replacements_made += count
+    if replacements_made > 0:
+        log.debug("global_replacements_applied", replacements_made=replacements_made)
     return text
 
 
 def sanitize_claude_md():
+    log.info("sanitizing_file", file_path="CLAUDE.md")
     src = (VAULT / "CLAUDE.md").read_text()
 
     src = re.sub(
@@ -99,10 +114,11 @@ def sanitize_claude_md():
         )
 
     (TEMPLATE / "CLAUDE.md").write_text(src)
-    print("  CLAUDE.md sanitized")
+    log.info("file_sanitized", file_path="CLAUDE.md")
 
 
 def sanitize_todo_md():
+    log.info("sanitizing_file", file_path="Todo.md")
     src = (VAULT / "Todo.md").read_text()
 
     src = re.sub(r"updated: \d{4}-\d{2}-\d{2}", "updated: ", src)
@@ -166,13 +182,15 @@ def sanitize_todo_md():
     src = re.sub(r"\n{3,}", "\n\n", src)
 
     (TEMPLATE / "Todo.md").write_text(src)
-    print("  Todo.md sanitized")
+    log.info("file_sanitized", file_path="Todo.md")
 
 
 def sanitize_commands():
     """Replace hardcoded personal values in command files with placeholders."""
+    log.info("sanitizing_commands")
     cmd_dir = TEMPLATE / ".claude" / "commands"
     if not cmd_dir.exists():
+        log.warning("commands_dir_not_found", path=str(cmd_dir))
         return
 
     repo_list_block = (
@@ -248,7 +266,7 @@ def sanitize_commands():
             md_file.write_text(src)
             count += 1
 
-    print(f"  Commands sanitized ({count} files)")
+    log.info("commands_sanitized", files_modified=count)
 
 
 def sanitize_research_md(src):
@@ -332,8 +350,10 @@ def sanitize_sync_sessions_md(src):
 
 
 def sanitize_commands_md():
+    log.info("sanitizing_file", file_path="Commands.md")
     fpath = TEMPLATE / "Commands.md"
     if not fpath.exists():
+        log.debug("file_not_found", file_path="Commands.md")
         return
     src = fpath.read_text()
     original = src
@@ -352,14 +372,16 @@ def sanitize_commands_md():
 
     if src != original:
         fpath.write_text(src)
-        print("  Commands.md sanitized")
+        log.info("file_sanitized", file_path="Commands.md")
     else:
-        print("  Commands.md unchanged")
+        log.debug("file_unchanged", file_path="Commands.md")
 
 
 def sanitize_automation_md():
+    log.info("sanitizing_file", file_path="Automation.md")
     fpath = TEMPLATE / "Automation.md"
     if not fpath.exists():
+        log.debug("file_not_found", file_path="Automation.md")
         return
     src = fpath.read_text()
     original = src
@@ -368,14 +390,16 @@ def sanitize_automation_md():
 
     if src != original:
         fpath.write_text(src)
-        print("  Automation.md sanitized")
+        log.info("file_sanitized", file_path="Automation.md")
     else:
-        print("  Automation.md unchanged")
+        log.debug("file_unchanged", file_path="Automation.md")
 
 
 def sanitize_gemini_docs_py():
+    log.info("sanitizing_file", file_path="gemini_docs.py")
     fpath = TEMPLATE / "scripts" / "email-pull" / "gemini_docs.py"
     if not fpath.exists():
+        log.debug("file_not_found", file_path="gemini_docs.py")
         return
     src = fpath.read_text()
     original = src
@@ -387,13 +411,14 @@ def sanitize_gemini_docs_py():
 
     if src != original:
         fpath.write_text(src)
-        print("  gemini_docs.py sanitized")
+        log.info("file_sanitized", file_path="gemini_docs.py")
     else:
-        print("  gemini_docs.py unchanged")
+        log.debug("file_unchanged", file_path="gemini_docs.py")
 
 
 def sanitize_other_files():
     """Apply global replacements to remaining files."""
+    log.info("sanitizing_other_files")
     files_to_sanitize = [
         TEMPLATE / "scripts" / "slack-pull" / "Slack Channels.md",
         TEMPLATE / "scripts" / "email-pull" / "gmail_label.py",
@@ -410,12 +435,14 @@ def sanitize_other_files():
             fpath.write_text(src)
             count += 1
 
-    print(f"  Other files sanitized ({count} files)")
+    log.info("other_files_sanitized", files_modified=count)
 
 
 def verify_no_leaks():
     """Scan all sanitized files for any remaining org-specific patterns."""
     import subprocess
+
+    log.info("verifying_no_leaks")
 
     target_files = []
     for pattern in [
@@ -435,9 +462,11 @@ def verify_no_leaks():
             target_files.extend(str(f) for f in d.iterdir() if f.is_file())
 
     if not target_files:
+        log.warning("no_files_to_verify")
         print("  No files to verify")
         return True
 
+    log.debug("scanning_files", file_count=len(target_files))
     grep_pattern = "|".join(BANNED_PATTERNS)
     result = subprocess.run(
         ["grep", "-E", "-n", grep_pattern] + target_files,
@@ -446,16 +475,23 @@ def verify_no_leaks():
     )
 
     if result.stdout.strip():
+        leak_count = len(result.stdout.strip().split("\n"))
+        log.error("leaks_detected", leak_count=leak_count)
         print("  LEAK DETECTED: org-specific patterns remain:")
         for line in result.stdout.strip().split("\n"):
             print(f"    {line}")
         return False
 
+    log.info("verification_passed")
     print("  Verification passed: no org-specific patterns found")
     return True
 
 
 if __name__ == "__main__":
+    operation_id = str(uuid.uuid4())[:8]
+    clear_and_bind(operation_id=operation_id)
+    log.info("sanitize_start")
+
     print("Sanitizing vault files...")
     sanitize_claude_md()
     sanitize_todo_md()
@@ -466,6 +502,8 @@ if __name__ == "__main__":
     sanitize_other_files()
     print("\nVerifying sanitization...")
     if not verify_no_leaks():
+        log.error("sanitize_failed")
         print("\nFAILED: Some org-specific patterns were not sanitized.")
         exit(1)
+    log.info("sanitize_complete")
     print("\nDone.")

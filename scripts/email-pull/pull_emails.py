@@ -7,6 +7,7 @@ import io
 import json
 import re
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -16,6 +17,12 @@ INBOX_DIR = VAULT_ROOT / "04-Inbox"
 CSV_FILE = SCRIPT_DIR / "emails.csv"
 IMPORTED_IDS_FILE = SCRIPT_DIR / ".imported_ids.json"
 
+sys.path.insert(0, str(SCRIPT_DIR.parent))
+from lib.logging import configure_logging, get_logger, clear_and_bind
+
+configure_logging()
+log = get_logger("pull_emails")
+
 
 # ---------------------------------------------------------------------------
 # CSV reading
@@ -23,7 +30,9 @@ IMPORTED_IDS_FILE = SCRIPT_DIR / ".imported_ids.json"
 
 def read_csv(csv_path):
     """Read the exported CSV file and return parsed rows (list of dicts)."""
+    log.debug("reading_csv", csv_path=str(csv_path))
     if not csv_path.exists():
+        log.error("csv_not_found", csv_path=str(csv_path))
         print(
             f"Error: {csv_path} not found.\n"
             "Download the 'Emails' tab from your Google Sheet as CSV\n"
@@ -34,7 +43,9 @@ def read_csv(csv_path):
         sys.exit(1)
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        return list(reader)
+        rows = list(reader)
+    log.info("csv_read", row_count=len(rows))
+    return rows
 
 
 # ---------------------------------------------------------------------------
@@ -79,6 +90,7 @@ def unique_filepath(base_path):
 
 def row_to_markdown(row):
     """Convert a Sheet CSV row (dict) to a markdown file (filename, content)."""
+    log.debug("converting_row", message_id=row.get("id", ""))
     msg_id = row.get("id", "")
     subject = row.get("subject", "(no subject)")
     from_addr = row.get("from", "")
@@ -177,14 +189,19 @@ def row_to_markdown(row):
 
 def load_imported_ids():
     """Load the set of previously imported message IDs."""
+    log.debug("loading_imported_ids", path=str(IMPORTED_IDS_FILE))
     if IMPORTED_IDS_FILE.exists():
-        return set(json.loads(IMPORTED_IDS_FILE.read_text()))
+        ids = set(json.loads(IMPORTED_IDS_FILE.read_text()))
+        log.info("imported_ids_loaded", count=len(ids))
+        return ids
+    log.info("imported_ids_loaded", count=0)
     return set()
 
 
 def save_imported_ids(ids):
     """Save the set of imported message IDs."""
     IMPORTED_IDS_FILE.write_text(json.dumps(sorted(ids), indent=2))
+    log.debug("imported_ids_saved", count=len(ids))
 
 
 # ---------------------------------------------------------------------------
@@ -211,6 +228,10 @@ def main():
     )
     args = parser.parse_args()
 
+    operation_id = str(uuid.uuid4())[:8]
+    clear_and_bind(operation_id=operation_id)
+    log.info("pull_emails_start", csv_path=str(args.csv), dry_run=args.dry_run)
+
     INBOX_DIR.mkdir(parents=True, exist_ok=True)
 
     # Read CSV
@@ -218,6 +239,7 @@ def main():
         print(f"Reading CSV from {args.csv}...")
     rows = read_csv(args.csv)
     if not rows:
+        log.info("no_emails_found")
         print("No emails found in the sheet.")
         return
     if args.verbose:
@@ -235,6 +257,7 @@ def main():
             continue
         if msg_id in imported_ids:
             skipped_count += 1
+            log.debug("email_skipped", message_id=msg_id, reason="already_imported")
             if args.verbose:
                 print(f"  Skipping (already imported): {row.get('subject', '?')}")
             continue
@@ -248,10 +271,12 @@ def main():
             filepath.write_text(content)
             imported_ids.add(gmail_id)
             save_imported_ids(imported_ids)
+            log.info("email_imported", message_id=gmail_id, filepath=str(filepath.name))
             if args.verbose:
                 print(f"  Imported: {filepath.name}")
             imported_count += 1
 
+    log.info("pull_emails_complete", imported=imported_count, skipped=skipped_count, email_count=len(rows))
     if args.dry_run:
         total = len(rows) - skipped_count
         print(f"\nDry run: {total} email(s) would be imported, {skipped_count} skipped.")

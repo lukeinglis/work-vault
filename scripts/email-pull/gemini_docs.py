@@ -12,11 +12,19 @@ import base64
 import json
 import re
 import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPT_DIR.parent))
+from lib.logging import configure_logging, get_logger, clear_and_bind
+
+configure_logging()
+log = get_logger("gemini_docs")
 
 TOKEN_FILE = (
     Path.home() / ".google_workspace_mcp" / "credentials" / "{{GOOGLE_EMAIL}}.json"
@@ -33,6 +41,7 @@ MONTHS = {
 
 def get_credentials():
     """Load OAuth credentials from the MCP token store."""
+    log.debug("loading_credentials", token_file=str(TOKEN_FILE))
     data = json.loads(TOKEN_FILE.read_text())
     return Credentials(
         token=data["token"],
@@ -61,7 +70,9 @@ def extract_doc_url(html):
         r"https://docs\.google\.com/document/d/([a-zA-Z0-9_-]+)", html
     )
     if match:
+        log.debug("doc_url_extracted", doc_id=match.group(1))
         return match.group(0), match.group(1)
+    log.debug("no_doc_url_found")
     return None, None
 
 
@@ -71,7 +82,7 @@ def parse_meeting_subject(subject):
     Format: Notes: "Meeting Name" Mon DD, YYYY
     """
     # Try quoted format first
-    quoted = re.match(r'Notes:\s*["“](.+?)["”]\s+(.+)', subject)
+    quoted = re.match(r'Notes:\s*[""](.+?)[""]\s+(.+)', subject)
     if quoted:
         name = quoted.group(1).strip('" “”')
         date_str = quoted.group(2).strip()
@@ -117,6 +128,7 @@ def parse_meeting_subject(subject):
 
 def fetch_doc_content(docs_service, doc_id):
     """Fetch and parse a Google Doc into structured sections."""
+    log.info("fetching_doc", doc_id=doc_id)
     doc = docs_service.documents().get(documentId=doc_id).execute()
 
     sections = {}
@@ -171,11 +183,14 @@ def fetch_doc_content(docs_service, doc_id):
             next_steps = "\n".join(sections[key])
             break
 
+    section_count = len([k for k in sections if k != "_preamble"])
+    log.info("doc_parsed", doc_id=doc_id, section_count=section_count, text_length=len(full_text))
     return summary, details, next_steps, full_text
 
 
 def process_message(gmail_service, docs_service, msg_id):
     """Process a single Gmail message ID and return structured data."""
+    log.info("processing_message", message_id=msg_id)
     result = {
         "message_id": msg_id,
         "google_doc_url": None,
@@ -197,6 +212,7 @@ def process_message(gmail_service, docs_service, msg_id):
             .execute()
         )
     except Exception as e:
+        log.error("gmail_fetch_failed", message_id=msg_id, error=str(e))
         result["error"] = f"gmail_fetch_failed: {e}"
         return result
 
@@ -210,6 +226,7 @@ def process_message(gmail_service, docs_service, msg_id):
     # Extract Google Doc URL from HTML body
     html_b64 = find_html_part(msg["payload"])
     if not html_b64:
+        log.warning("no_html_body", message_id=msg_id)
         result["error"] = "no_html_body"
         return result
 
@@ -217,6 +234,7 @@ def process_message(gmail_service, docs_service, msg_id):
     doc_url, doc_id = extract_doc_url(html)
 
     if not doc_url:
+        log.warning("no_doc_url_in_email", message_id=msg_id)
         result["error"] = "no_doc_url_in_email"
         return result
 
@@ -232,7 +250,9 @@ def process_message(gmail_service, docs_service, msg_id):
         result["details"] = details
         result["next_steps"] = next_steps
         result["full_text"] = full_text
+        log.info("message_processed", message_id=msg_id, meeting_name=name)
     except Exception as e:
+        log.error("doc_fetch_failed", message_id=msg_id, doc_id=doc_id, error=str(e))
         result["error"] = f"doc_fetch_failed: {e}"
 
     return result
@@ -240,6 +260,7 @@ def process_message(gmail_service, docs_service, msg_id):
 
 def process_doc_id(docs_service, doc_id):
     """Process a document ID directly (no Gmail fetch needed)."""
+    log.info("processing_doc_direct", doc_id=doc_id)
     result = {
         "message_id": None,
         "google_doc_url": f"https://docs.google.com/document/d/{doc_id}",
@@ -269,7 +290,9 @@ def process_doc_id(docs_service, doc_id):
             name, date = parse_meeting_subject(f"Notes: {title}")
             result["meeting_name"] = name
             result["meeting_date"] = date
+        log.info("doc_direct_processed", doc_id=doc_id, meeting_name=result["meeting_name"])
     except Exception as e:
+        log.error("doc_fetch_failed", doc_id=doc_id, error=str(e))
         result["error"] = f"doc_fetch_failed: {e}"
 
     return result
@@ -294,17 +317,25 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    operation_id = str(uuid.uuid4())[:8]
+    clear_and_bind(operation_id=operation_id)
+
     creds = get_credentials()
     results = []
 
     if args.doc_id:
+        log.info("gemini_docs_start", mode="doc_id", doc_id=args.doc_id)
         docs_service = build("docs", "v1", credentials=creds)
         results.append(process_doc_id(docs_service, args.doc_id))
     else:
+        log.info("gemini_docs_start", mode="message_ids", message_count=len(args.message_ids))
         gmail_service = build("gmail", "v1", credentials=creds)
         docs_service = build("docs", "v1", credentials=creds)
         for msg_id in args.message_ids:
             results.append(process_message(gmail_service, docs_service, msg_id))
+
+    error_count = sum(1 for r in results if r.get("error"))
+    log.info("gemini_docs_complete", total=len(results), errors=error_count)
 
     json.dump(results, sys.stdout, indent=2)
     print()
