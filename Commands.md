@@ -22,8 +22,8 @@ tags: [reference]
 
 | Command | What it does |
 |---|---|
-| `/jira-hygiene audit <KEY>` | Audits a Jira issue against the Red Hat AI hygiene checklist. |
-| `/jira-hygiene create` | Guides creation of new Jiras following the Red Hat AI process. |
+| `/jira-hygiene audit <KEY>` | Audits a Jira issue against the {{YOUR_ORG_SHORT}} AI hygiene checklist. |
+| `/jira-hygiene create` | Guides creation of new Jiras following the {{YOUR_ORG_SHORT}} AI process. |
 | `/jira-hygiene help` | Explains the Jira hierarchy, lifecycle, and links to canonical examples. |
 
 ## RFE Commands
@@ -32,7 +32,7 @@ tags: [reference]
 | ----------------------------- | ----------------------------------------------------------------------------------------- |
 | `/rfe.create`                 | Write a new RFE from a problem statement or idea, asking clarifying questions first.      |
 | `/rfe.review <KEY> [KEY...]`  | Review and improve RFEs by running rubric scoring, feasibility checks, and auto-revision. |
-| `/rfe.submit`                 | Submit or update RFEs in Jira (creates RHAIRFE tickets or updates existing ones).         |
+| `/rfe.submit`                 | Submit or update RFEs in Jira (creates {{JIRA_PROJECT_RFE}} tickets or updates existing ones).         |
 | `/rfe.split <KEY> [KEY...]`   | Split oversized RFEs into smaller, right-sized RFEs.                                      |
 | `/rfe.auto-fix <KEY/JQL>`     | Batch review and fix RFEs automatically (reviews, revises, splits).                       |
 | `/rfe.speedrun`               | End-to-end RFE pipeline: create, review, auto-fix, and submit in one pass.                |
@@ -43,7 +43,7 @@ tags: [reference]
 
 | Command | What it does |
 |---|---|
-| `/strat.create` | Create RHAISTRAT strategies from approved RFEs by cloning from RHAIRFE. |
+| `/strat.create` | Create {{JIRA_PROJECT_STRAT}} strategies from approved RFEs by cloning from {{JIRA_PROJECT_RFE}}. |
 | `/strat.refine` | Add the HOW, dependencies, impacted teams, and non-functional requirements to strategies. |
 | `/strat.review` | Adversarial review of strategies across feasibility, testability, scope, and architecture. |
 

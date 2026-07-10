@@ -28,7 +28,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - its-hub SDK competitive positioning: what alternatives exist for ITS-as-a-platform-service
   - RL for reasoning: GRPO, RLVR, reward-guided generation (as it intersects with ITS sampling)
 - **NOT in scope (covered by redhat-ai):** inference engine performance, distributed inference architecture, model serving platforms, inference hardware, inference cost per token, Kubernetes inference networking
-- **Key question:** What's advancing in test-time compute ALGORITHMS AND TECHNIQUES that Red Hat should know about, respond to, or build on?
+- **Key question:** What's advancing in test-time compute ALGORITHMS AND TECHNIQUES that your org should know about, respond to, or build on?
 - **Jira:** {{JIRA_PROJECT_STRAT}}, component: {{COMPONENT_1}}
 
 ### Fine-Tuning (`fine-tuning`)
@@ -58,11 +58,11 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
 - **Key question:** What new tools or capabilities should the team know about or adopt?
 - **Jira:** {{JIRA_PROJECT_STRAT}}, component: {{COMPONENT_3}}
 
-### Red Hat AI (`redhat-ai`) -- DEFAULT
-- **File:** `01-Components/ai-innovation/research/competitive-landscape-red-hat-ai.md`
-- **Domain:** Red Hat AI product portfolio, enterprise AI platform competition, industry trends affecting Red Hat AI
+### {{YOUR_ORG_SHORT}} AI (`org-ai`) -- DEFAULT
+- **File:** `01-Components/ai-innovation/research/competitive-landscape-org-ai.md`
+- **Domain:** {{YOUR_ORG_SHORT}} AI product portfolio, enterprise AI platform competition, industry trends affecting {{YOUR_ORG_SHORT}} AI
 - **Research areas:**
-  - Red Hat AI current offerings (Red Hat OpenShift AI, RHOAI components, InstructLab, Podman AI Lab, Neural Magic/vLLM)
+  - {{YOUR_ORG_SHORT}} AI current offerings (list your org's AI products here)
   - Direct competitors (NVIDIA AI Enterprise, IBM watsonx, Google Vertex AI, AWS SageMaker, Azure AI, Databricks/Mosaic, Anyscale/Ray)
   - Enterprise AI platform trends (on-prem vs hybrid vs cloud, Kubernetes-native AI, MLOps maturity)
   - Open source AI ecosystem health (vLLM adoption, InstructLab community, KServe/ModelMesh)
@@ -70,7 +70,7 @@ Run deep competitive/adjacent landscape research for one or all initiatives. Pro
   - Partner ecosystem (IBM integration, NVIDIA partnership, cloud provider relationships)
   - Regulatory and compliance trends affecting enterprise AI adoption
   - Customer and community sentiment (reviews, case studies, adoption signals)
-- **Key question:** How is Red Hat AI positioned in the enterprise AI platform market, what are competitors doing, and what industry trends should we be tracking?
+- **Key question:** How is {{YOUR_ORG_SHORT}} AI positioned in the enterprise AI platform market, what are competitors doing, and what industry trends should we be tracking?
 - **Jira:** {{JIRA_PROJECT_STRAT}}, all components
 
 ## Execution Philosophy
@@ -190,9 +190,9 @@ At `quick` level, prioritize recency and signal. Get the headlines, skip the dee
 
       This is the strategic early warning section. Review with engineering leads.
 
-      ## Relevance to Red Hat
+      ## Relevance to {{YOUR_ORG_SHORT}}
       Detailed competitive positioning analysis:
-      - Where Red Hat's offerings sit relative to the landscape
+      - Where {{YOUR_ORG_SHORT}}'s offerings sit relative to the landscape
       - Competitive threats to watch
       - Opportunities to pursue or gaps to fill
       - Trends that could shift our positioning
@@ -219,4 +219,4 @@ At `quick` level, prioritize recency and signal. Get the headlines, skip the dee
 - **Be specific.** "Gretel launched synthetic tabular data v2 with differential privacy support" not "Gretel is doing interesting work."
 - **Distinguish signal from noise.** Not every arxiv paper matters. Focus on things with real traction: citations, GitHub stars, adoption, benchmark results, production deployments.
 - **Note what's unverified.** If something comes from a single source or seems speculative, say so.
-- **Capture competitive positioning.** Don't just list what exists. Analyze where Red Hat's offerings sit relative to the landscape.
+- **Capture competitive positioning.** Don't just list what exists. Analyze where {{YOUR_ORG_SHORT}}'s offerings sit relative to the landscape.

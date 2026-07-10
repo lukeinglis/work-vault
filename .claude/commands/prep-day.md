@@ -242,22 +242,22 @@ Prep a day's meetings by fetching calendar events, creating meeting note shells,
    **Output:** Flatten all sources into ~4 bullets, prioritizing by urgency. Each bullet names the source type. Example:
    - Overdue: ITS blog post (due Mon)
    - Email: Kai re: OLS engineering manager -- needs follow-up
-   - its_hub: 2 PRs merged (reward-hub refactor, docs update)
-   - Fine-Tuning: nothing pressing, sdg_hub/training_hub quiet
+   - {{REPO_1}}: 2 PRs merged (feature-x, docs update)
+   - Component 2: nothing pressing, {{REPO_2}}/{{REPO_3}} quiet
 
 11. **Deep competitive research (Mondays only):**
 
    **Gate:** Check if target day is Monday. If not Monday, skip to Step 12 and state: "Step 11: skipped (not Monday)."
 
    - Invoke `/research all --depth deep` using the Skill tool to update all four competitive landscape briefs
-   - This launches four parallel background agents (ITS, Fine-Tuning, AI Innovation, Red Hat AI) -- each takes 20-30 minutes
+   - This launches four parallel background agents (one per initiative)
    - Kick this off early so it runs in parallel with the rest of prep
    - Do NOT wait for research to complete before finishing the prep-day report
    - Note in the daily focus output: "Research: deep landscape scan running for all domains (will complete in ~30 min)"
 
 12. **Report what was done (3 sentences max):**
 
-   Example: "Prepped 5 meetings for Thursday, added 2 with prep notes to scratch pad. 2 tasks overdue, 3 emails flagged. its_hub had 2 PRs merged; other repos quiet."
+   Example: "Prepped 5 meetings for Thursday, added 2 with prep notes to scratch pad. 2 tasks overdue, 3 emails flagged. {{REPO_1}} had 2 PRs merged; other repos quiet."
 
 13. **Offer deep prep:**
 

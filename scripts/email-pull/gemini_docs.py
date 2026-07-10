@@ -19,7 +19,7 @@ from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 
 TOKEN_FILE = (
-    Path.home() / ".google_workspace_mcp" / "credentials" / "linglis@redhat.com.json"
+    Path.home() / ".google_workspace_mcp" / "credentials" / "{{GOOGLE_EMAIL}}.json"
 )
 
 MONTHS = {

@@ -65,4 +65,4 @@ Email attachments are saved to a Google Drive folder called **Obsidian Email Att
 
 *Follow-up: may already be implemented in a prior session. See CLAUDE.md for the full spec.*
 
-Syncs RHAISTRAT/RHAIRFE ticket state into initiative `_overview.md` files. Invoke with `/jira-sync` in Claude Code.
+Syncs {{JIRA_PROJECT_STRAT}}/{{JIRA_PROJECT_RFE}} ticket state into initiative `_overview.md` files. Invoke with `/jira-sync` in Claude Code.

@@ -37,7 +37,7 @@ Summarize Claude Code sessions and GitHub activity for a target date. Called by 
   - `{{GITHUB_USERNAME}}/your-repo-2`
   - `your-org/project-repo`
   <!-- Add your repos here. See docs/setup-integrations.md -->
-- Filter out personal repos (repos not related to your work) and fork-sync repos (sdg_hub_luke)
+- Filter out personal repos (repos not related to your work) and fork-sync repos ({{FORK_REPO}})
 - Write GitHub activity into a `github` field on each matching session JSON (match by cwd/repo name)
 - If PRs or commits don't match a session (e.g., done outside Claude Code), log them in a separate `07-Usage/sessions/YYYY-MM-DD-github.json` file
 - State: "Found N PRs, M direct commits across K repos."
