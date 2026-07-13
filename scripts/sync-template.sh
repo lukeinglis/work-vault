@@ -2,7 +2,7 @@
 set -euo pipefail
 
 VAULT="$HOME/Documents/work-vault"
-TEMPLATE="$HOME/projects/work-vault-template"
+TEMPLATE="$HOME/projects/work/work-vault-template"
 
 if [ ! -d "$TEMPLATE/.git" ]; then
   echo "ERROR: Template repo not found at $TEMPLATE"
