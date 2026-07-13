@@ -1,0 +1,22 @@
+{
+  "weekly": {
+    "enabled": true,
+    "folder": "02-Weekly",
+    "template": "Templates/weekly-periodic.md",
+    "format": "YYYY-[W]ww"
+  },
+  "daily": {
+    "enabled": false
+  },
+  "monthly": {
+    "enabled": false
+  },
+  "quarterly": {
+    "enabled": false
+  },
+  "yearly": {
+    "enabled": false
+  },
+  "hasMigratedDailyNoteSettings": true,
+  "hasMigratedWeeklyNoteSettings": true
+}

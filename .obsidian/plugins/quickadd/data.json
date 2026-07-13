@@ -1,0 +1,112 @@
+{
+  "choices": [
+    {
+      "id": "capture-inbox",
+      "name": "Capture to Inbox",
+      "type": "Capture",
+      "command": false,
+      "format": {
+        "enabled": true,
+        "format": "- {{VALUE}} (captured {{DATE:YYYY-MM-DD HH:mm}})"
+      },
+      "captureTo": "04-Inbox/intake/{{DATE:YYYY-MM-DD}}-quick-capture.md",
+      "createFileIfItDoesntExist": {
+        "enabled": true,
+        "createWithTemplate": false
+      },
+      "task": false,
+      "prepend": false,
+      "appendLink": false,
+      "insertAfter": {
+        "enabled": false
+      },
+      "fileExistsMode": "append"
+    },
+    {
+      "id": "add-action-item",
+      "name": "Add Action Item to Next Up",
+      "type": "Capture",
+      "command": false,
+      "format": {
+        "enabled": true,
+        "format": "| you   | {{VALUE}} |  |  | "
+      },
+      "captureTo": "Todo.md",
+      "task": false,
+      "prepend": false,
+      "appendLink": false,
+      "insertAfter": {
+        "enabled": true,
+        "after": "## Next Up",
+        "insertAtEnd": true
+      },
+      "fileExistsMode": "append"
+    },
+    {
+      "id": "quick-scratch",
+      "name": "Quick Scratch Note",
+      "type": "Capture",
+      "command": false,
+      "format": {
+        "enabled": true,
+        "format": "- {{VALUE}}"
+      },
+      "captureTo": "02-Weekly/{{DATE:YYYY-[W]ww}}.md",
+      "task": false,
+      "prepend": false,
+      "appendLink": false,
+      "insertAfter": {
+        "enabled": true,
+        "after": "### {{DATE:dddd}}",
+        "insertAtEnd": false
+      },
+      "fileExistsMode": "append"
+    }
+  ],
+  "inputPrompt": "single-line",
+  "persistInputPromptDrafts": true,
+  "useSelectionAsCaptureValue": true,
+  "devMode": false,
+  "templateFolderPath": "Templates",
+  "announceUpdates": "major",
+  "version": "2.12.0",
+  "globalVariables": {},
+  "onePageInputEnabled": false,
+  "disableOnlineFeatures": true,
+  "enableRibbonIcon": true,
+  "showCaptureNotification": true,
+  "showInputCancellationNotification": false,
+  "enableTemplatePropertyTypes": false,
+  "dateAliases": {
+    "t": "today",
+    "tm": "tomorrow",
+    "yd": "yesterday",
+    "nw": "next week",
+    "nm": "next month",
+    "ny": "next year",
+    "lw": "last week",
+    "lm": "last month",
+    "ly": "last year"
+  },
+  "ai": {
+    "defaultModel": "Ask me",
+    "defaultSystemPrompt": "",
+    "promptTemplatesFolderPath": "",
+    "showAssistant": false,
+    "providers": [],
+    "autoSyncModels": false
+  },
+  "migrations": {
+    "migrateToMacroIDFromEmbeddedMacro": true,
+    "useQuickAddTemplateFolder": true,
+    "incrementFileNameSettingMoveToDefaultBehavior": true,
+    "mutualExclusionInsertAfterAndWriteToBottomOfFile": true,
+    "setVersionAfterUpdateModalRelease": true,
+    "addDefaultAIProviders": true,
+    "removeMacroIndirection": true,
+    "migrateFileOpeningSettings": true,
+    "backfillFileOpeningDefaults": true,
+    "setProviderModelDiscoveryMode": true,
+    "migrateProviderApiKeysToSecretStorage": true
+  }
+}

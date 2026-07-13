@@ -1,0 +1,45 @@
+Start polling #{{SLACK_CHANNEL_NAME}} for commands. Run `/loop 5m /pull-slack` to check the channel every 5 minutes and dispatch any new messages.
+
+This is the listener half of the daily Slack integration. Typical flow:
+
+```
+/prep-day          -- posts day header + meeting anchors
+/slack-listener    -- starts polling (this command)
+...                -- work all day, send commands from Slack
+/close-day         -- pulls threads, ports notes, stops listener
+```
+
+## Execution Rules
+
+- Execute every startup step in order. Stop on any failure.
+- State the result of each preflight check before moving to the next.
+
+## Startup
+
+1. **Verify Slack connection:** Make one test call (`mcp__slack__get_channel_history` on {{SLACK_CHANNEL_ID}}, limit 1). If it fails with auth errors, tell the user to refresh tokens (`python3 {{SLACK_TOKEN_REFRESH_CMD}} --refresh-tokens`) and stop.
+
+2. **Check for day header:** Look for today's `-- YYYY-MM-DD --` message in #{{SLACK_CHANNEL_NAME}}. If missing, warn: "No day header found -- run /prep-day first?" and stop.
+
+3. **Pin command reference card:** Check if the channel has a pinned message containing the command reference. If not, pin this message:
+
+   ```
+   Commands:
+   todo: <text>        -- add to Todo.md
+   decision: <text>    -- log a decision
+   note: <text>        -- capture to inbox
+   meeting: <name>     -- create ad-hoc meeting note
+   search: <query>     -- search the vault
+   jira: <KEY>         -- look up a Jira ticket
+
+   Or just type naturally -- intent is classified automatically.
+   ```
+
+4. **Post listener status:** Post to #{{SLACK_CHANNEL_NAME}}: "Listener active"
+
+5. **Start the loop:** Invoke `/loop 5m /pull-slack` using the Skill tool.
+
+## Shutdown
+
+The listener dies when the Claude Code session ends. To stop it gracefully, `/close-day` includes a step that kills the active pull-slack loop before closing out the day. The listener can also be stopped manually by ending the loop.
+
+When stopped (by close-day or session end), the last pull-slack run's checkmark reactions ensure no messages are lost -- the next session picks up where it left off.
