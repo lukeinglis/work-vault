@@ -4,8 +4,25 @@ Sanitize live vault files into generic template versions.
 Preserves structural improvements while stripping personal content.
 """
 
+import os
 import re
+import uuid
 from pathlib import Path
+
+import structlog
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+        if os.environ.get("LOG_FORMAT") == "json"
+        else structlog.dev.ConsoleRenderer(),
+    ],
+)
+structlog.contextvars.bind_contextvars(run_id=str(uuid.uuid4()))
+logger = structlog.get_logger()
 
 VAULT = Path.home() / "Documents" / "work-vault"
 TEMPLATE = Path.home() / "projects" / "work" / "work-vault-template"
@@ -49,12 +66,14 @@ BANNED_PATTERNS = [
 
 
 def apply_global_replacements(text):
+    logger.info("applying_global_replacements", replacement_count=len(GLOBAL_REPLACEMENTS))
     for old, new in GLOBAL_REPLACEMENTS:
         text = text.replace(old, new)
     return text
 
 
 def sanitize_claude_md():
+    logger.info("sanitizing_file", file="CLAUDE.md")
     src = (VAULT / "CLAUDE.md").read_text()
 
     src = re.sub(
@@ -103,6 +122,7 @@ def sanitize_claude_md():
 
 
 def sanitize_todo_md():
+    logger.info("sanitizing_file", file="Todo.md")
     src = (VAULT / "Todo.md").read_text()
 
     src = re.sub(r"updated: \d{4}-\d{2}-\d{2}", "updated: ", src)
@@ -171,8 +191,10 @@ def sanitize_todo_md():
 
 def sanitize_commands():
     """Replace hardcoded personal values in command files with placeholders."""
+    logger.info("sanitizing_commands")
     cmd_dir = TEMPLATE / ".claude" / "commands"
     if not cmd_dir.exists():
+        logger.warning("commands_dir_not_found", path=str(cmd_dir))
         return
 
     repo_list_block = (
@@ -248,6 +270,7 @@ def sanitize_commands():
             md_file.write_text(src)
             count += 1
 
+    logger.info("commands_sanitized", files_modified=count)
     print(f"  Commands sanitized ({count} files)")
 
 
@@ -415,6 +438,7 @@ def sanitize_other_files():
 
 def verify_no_leaks():
     """Scan all sanitized files for any remaining org-specific patterns."""
+    logger.info("verifying_no_leaks")
     import subprocess
 
     target_files = []
@@ -446,16 +470,19 @@ def verify_no_leaks():
     )
 
     if result.stdout.strip():
+        logger.error("leak_detected", leak_lines=result.stdout.strip().split("\n"))
         print("  LEAK DETECTED: org-specific patterns remain:")
         for line in result.stdout.strip().split("\n"):
             print(f"    {line}")
         return False
 
+    logger.info("verification_passed")
     print("  Verification passed: no org-specific patterns found")
     return True
 
 
 if __name__ == "__main__":
+    logger.info("sanitization_started", vault=str(VAULT), template=str(TEMPLATE))
     print("Sanitizing vault files...")
     sanitize_claude_md()
     sanitize_todo_md()
@@ -466,6 +493,8 @@ if __name__ == "__main__":
     sanitize_other_files()
     print("\nVerifying sanitization...")
     if not verify_no_leaks():
+        logger.error("sanitization_failed")
         print("\nFAILED: Some org-specific patterns were not sanitized.")
         exit(1)
+    logger.info("sanitization_completed")
     print("\nDone.")
