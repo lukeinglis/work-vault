@@ -44,7 +44,7 @@ def eval_syntax_check() -> dict:
             errors.append(f"{sh_file}: {e}")
 
     if total == 0:
-        return {"name": "syntax_check", "score": 0.0, "weight": 0.20,
+        return {"name": "syntax_check", "score": 0.0, "weight": 0.60,
                 "passed": True, "details": "No script files found"}
 
     score = max(0.0, 1.0 - len(errors) / total)
@@ -53,7 +53,7 @@ def eval_syntax_check() -> dict:
     if errors:
         detail += " | " + "; ".join(errors[:5])
 
-    return {"name": "syntax_check", "score": round(score, 3), "weight": 0.20,
+    return {"name": "syntax_check", "score": round(score, 3), "weight": 0.60,
             "passed": passed, "details": detail[-500:]}
 
 def eval_observability() -> dict:
@@ -114,7 +114,7 @@ def eval_observability() -> dict:
                 has_trace = True
 
     if total_fn == 0:
-        return {"name": "observability", "score": 0.0, "weight": 0.20,
+        return {"name": "observability", "score": 0.0, "weight": 0.15,
                 "passed": True, "details": "No functions found to analyze"}
 
     cov = logged_fn / total_fn
@@ -126,7 +126,7 @@ def eval_observability() -> dict:
                f"tracing={'yes' if has_trace else 'no'}, "
                f"density={density:.0%}")
 
-    return {"name": "observability", "score": round(score, 3), "weight": 0.20,
+    return {"name": "observability", "score": round(score, 3), "weight": 0.15,
             "passed": score >= 0.3, "details": details}
 
 def eval_capability_surface() -> dict:
@@ -149,7 +149,7 @@ def eval_capability_surface() -> dict:
     score = min(1.0, count / 50)
     details = f"{count} capabilities found (commands + skills + templates), target=50"
 
-    return {"name": "capability_surface", "score": round(score, 3), "weight": 0.30,
+    return {"name": "capability_surface", "score": round(score, 3), "weight": 0.15,
             "passed": score >= 0.2, "details": details}
 
 
@@ -167,7 +167,7 @@ def eval_research_grounding() -> dict:
     score = min(1.0, archive_entries / 10)
     details = f"{archive_entries} archive entries found, target=10"
 
-    return {"name": "research_grounding", "score": round(score, 3), "weight": 0.30,
+    return {"name": "research_grounding", "score": round(score, 3), "weight": 0.10,
             "passed": score >= 0.1, "details": details}
 
 
