@@ -5,10 +5,27 @@ import argparse
 import csv
 import io
 import json
+import os
 import re
 import sys
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+
+import structlog
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+        if os.environ.get("LOG_FORMAT") == "json"
+        else structlog.dev.ConsoleRenderer(),
+    ],
+)
+structlog.contextvars.bind_contextvars(run_id=str(uuid.uuid4()))
+logger = structlog.get_logger()
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 VAULT_ROOT = SCRIPT_DIR.parent.parent
@@ -23,7 +40,9 @@ IMPORTED_IDS_FILE = SCRIPT_DIR / ".imported_ids.json"
 
 def read_csv(csv_path):
     """Read the exported CSV file and return parsed rows (list of dicts)."""
+    logger.info("reading_csv", path=str(csv_path))
     if not csv_path.exists():
+        logger.error("csv_not_found", path=str(csv_path))
         print(
             f"Error: {csv_path} not found.\n"
             "Download the 'Emails' tab from your Google Sheet as CSV\n"
@@ -79,6 +98,7 @@ def unique_filepath(base_path):
 
 def row_to_markdown(row):
     """Convert a Sheet CSV row (dict) to a markdown file (filename, content)."""
+    logger.info("converting_row", subject=row.get("subject", ""))
     msg_id = row.get("id", "")
     subject = row.get("subject", "(no subject)")
     from_addr = row.get("from", "")
@@ -192,6 +212,7 @@ def save_imported_ids(ids):
 # ---------------------------------------------------------------------------
 
 def main():
+    logger.info("pull_emails_started")
     parser = argparse.ArgumentParser(
         description="Pull exported emails from Google Sheet into the vault inbox."
     )
@@ -254,8 +275,10 @@ def main():
 
     if args.dry_run:
         total = len(rows) - skipped_count
+        logger.info("dry_run_complete", would_import=total, skipped=skipped_count)
         print(f"\nDry run: {total} email(s) would be imported, {skipped_count} skipped.")
     else:
+        logger.info("pull_emails_completed", imported=imported_count, skipped=skipped_count)
         print(
             f"Done: {imported_count} imported, {skipped_count} skipped (already imported)."
         )

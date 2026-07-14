@@ -10,10 +10,27 @@ Uses the same OAuth credentials as gmail_label.py.
 import argparse
 import base64
 import json
+import os
 import re
 import sys
+import uuid
 from datetime import datetime
 from pathlib import Path
+
+import structlog
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.processors.add_log_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.processors.JSONRenderer()
+        if os.environ.get("LOG_FORMAT") == "json"
+        else structlog.dev.ConsoleRenderer(),
+    ],
+)
+structlog.contextvars.bind_contextvars(run_id=str(uuid.uuid4()))
+logger = structlog.get_logger()
 
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -33,6 +50,7 @@ MONTHS = {
 
 def get_credentials():
     """Load OAuth credentials from the MCP token store."""
+    logger.info("loading_credentials", token_file=str(TOKEN_FILE))
     data = json.loads(TOKEN_FILE.read_text())
     return Credentials(
         token=data["token"],
@@ -117,6 +135,7 @@ def parse_meeting_subject(subject):
 
 def fetch_doc_content(docs_service, doc_id):
     """Fetch and parse a Google Doc into structured sections."""
+    logger.info("fetching_doc", doc_id=doc_id)
     doc = docs_service.documents().get(documentId=doc_id).execute()
 
     sections = {}
@@ -176,6 +195,7 @@ def fetch_doc_content(docs_service, doc_id):
 
 def process_message(gmail_service, docs_service, msg_id):
     """Process a single Gmail message ID and return structured data."""
+    logger.info("processing_message", message_id=msg_id)
     result = {
         "message_id": msg_id,
         "google_doc_url": None,
@@ -197,6 +217,7 @@ def process_message(gmail_service, docs_service, msg_id):
             .execute()
         )
     except Exception as e:
+        logger.error("gmail_fetch_failed", message_id=msg_id, error=str(e))
         result["error"] = f"gmail_fetch_failed: {e}"
         return result
 
@@ -210,6 +231,7 @@ def process_message(gmail_service, docs_service, msg_id):
     # Extract Google Doc URL from HTML body
     html_b64 = find_html_part(msg["payload"])
     if not html_b64:
+        logger.warning("no_html_body", message_id=msg_id)
         result["error"] = "no_html_body"
         return result
 
@@ -217,6 +239,7 @@ def process_message(gmail_service, docs_service, msg_id):
     doc_url, doc_id = extract_doc_url(html)
 
     if not doc_url:
+        logger.warning("no_doc_url_in_email", message_id=msg_id)
         result["error"] = "no_doc_url_in_email"
         return result
 
@@ -233,6 +256,7 @@ def process_message(gmail_service, docs_service, msg_id):
         result["next_steps"] = next_steps
         result["full_text"] = full_text
     except Exception as e:
+        logger.error("doc_fetch_failed", doc_id=doc_id, error=str(e))
         result["error"] = f"doc_fetch_failed: {e}"
 
     return result
@@ -240,6 +264,7 @@ def process_message(gmail_service, docs_service, msg_id):
 
 def process_doc_id(docs_service, doc_id):
     """Process a document ID directly (no Gmail fetch needed)."""
+    logger.info("processing_doc_id", doc_id=doc_id)
     result = {
         "message_id": None,
         "google_doc_url": f"https://docs.google.com/document/d/{doc_id}",
@@ -270,12 +295,14 @@ def process_doc_id(docs_service, doc_id):
             result["meeting_name"] = name
             result["meeting_date"] = date
     except Exception as e:
+        logger.error("doc_fetch_failed", doc_id=doc_id, error=str(e))
         result["error"] = f"doc_fetch_failed: {e}"
 
     return result
 
 
 def main():
+    logger.info("gemini_docs_started")
     parser = argparse.ArgumentParser(
         description="Fetch Gemini meeting note content from Gmail/Google Docs."
     )
@@ -306,6 +333,7 @@ def main():
         for msg_id in args.message_ids:
             results.append(process_message(gmail_service, docs_service, msg_id))
 
+    logger.info("gemini_docs_completed", result_count=len(results))
     json.dump(results, sys.stdout, indent=2)
     print()
 
